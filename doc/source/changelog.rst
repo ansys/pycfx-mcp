@@ -13,6 +13,25 @@ Added
 
 .. towncrier release notes start
 
+`0.1.1 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.1.1>`_ - July 31, 2026
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.1.0
+          - `#4 <https://github.com/ansys/pycfx-mcp/pull/4>`_
+
+        * - Update common-mcp
+          - `#6 <https://github.com/ansys/pycfx-mcp/pull/6>`_
+
+
 `0.1.0 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.1.0>`_ - July 31, 2026
 =================================================================================
 
