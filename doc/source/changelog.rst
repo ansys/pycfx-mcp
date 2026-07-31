@@ -13,6 +13,9 @@ Added
 
 .. towncrier release notes start
 
+`0.1.1 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.1.1>`_ - July 31, 2026
+=================================================================================
+No significant changes.
 `0.1.0 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.1.0>`_ - July 31, 2026
 =================================================================================
 
