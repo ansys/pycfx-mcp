@@ -151,7 +151,7 @@ jobs:
 
   integration:
     name: "Integration tests (live CFX)"
-    runs-on: [ubuntu-latest-8-cores]
+    runs-on: [public-ubuntu-latest-8-cores]
     needs: [smoke-tests]
     permissions:
       contents: read
