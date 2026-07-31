@@ -9,7 +9,7 @@ from ansys_sphinx_theme import ansys_favicon, get_version_match, pyansys_logo_bl
 try:
     from ansys.cfx.mcp import __version__
 except ImportError:
-    __version__ = "0.1.0"
+    __version__ = "0.1.1"
 
 project = "pycfx-mcp"
 copyright = f"(c) {datetime.now().year} Synopsys, Inc. and ANSYS, Inc. All rights reserved"
