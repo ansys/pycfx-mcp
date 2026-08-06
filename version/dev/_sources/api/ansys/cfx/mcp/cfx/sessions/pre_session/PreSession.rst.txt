@@ -1,0 +1,436 @@
+
+
+
+
+
+
+:class:`PreSession`
+===================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.sessions.pre_session.PreSession(session: Any, *, mode: str = 'launch')
+
+   
+   Wrapper for a live PyCFX PreProcessing session.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+
+.. py:currentmodule:: PreSession
+
+Overview
+--------
+
+.. tab-set::
+
+
+   .. tab-item:: Constructors
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~launch`
+            - Launch a new PyCFX CFX-Pre session and wrap it for MCP use.
+          * - :py:attr:`~attach`
+            - Attach to an existing CFX-Pre service and wrap the session.
+          * - :py:attr:`~from_sinfo`
+            - Attach to CFX-Pre using a PyCFX server information file.
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~import_mesh`
+            - Import a mesh file into the wrapped CFX-Pre session.
+          * - :py:attr:`~open_case`
+            - Open an existing CFX case in the wrapped CFX-Pre session.
+          * - :py:attr:`~write_solver_input`
+            - Write a CFX-Solver input file from the current CFX-Pre setup.
+          * - :py:attr:`~exit`
+            - Exit the wrapped CFX session and release its resources.
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~raw`
+            - Underlying PyCFX CFX-Pre session object.
+          * - :py:attr:`~is_active`
+            - Whether the wrapped CFX session still appears active.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~mode`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.sessions.pre_session import PreSession
+
+Property detail
+---------------
+
+.. py:property:: raw
+   :type: Any
+
+
+   
+   Underlying PyCFX CFX-Pre session object.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Raw PyCFX preprocessing session used by generated code and backend helpers.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: is_active
+   :type: bool
+
+
+   
+   Whether the wrapped CFX session still appears active.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the wrapped session appears to still be usable.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: mode
+   :value: 'launch'
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: launch(*, launcher: str = 'from_install', ui_mode: str | None = None, product_version: str | None = None, case_file_name: str | None = None, start_timeout: int = 60, additional_arguments: str = '', container_dict: dict[str, Any] | None = None, cleanup_on_exit: bool = True) -> PreSession
+   :classmethod:
+
+
+   
+   Launch a new PyCFX CFX-Pre session and wrap it for MCP use.
+
+
+   :Parameters:
+
+       **launcher** : :class:`python:str`, default: ``'from_install'``
+           PyCFX launcher method to call.
+
+       **ui_mode** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional CFX UI mode for the launched process.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **case_file_name** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           CFX case file to open when launching CFX-Pre.
+
+       **start_timeout** : :class:`python:int`, default: 60
+           Maximum number of seconds to wait for a launched CFX process.
+
+       **additional_arguments** : :class:`python:str`, default: ``''``
+           Additional command-line arguments passed to the CFX launcher.
+
+       **container_dict** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Container-launch configuration passed to PyCFX.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether PyCFX should clean up the launched process on exit.
+
+
+
+   :Returns:
+
+       'PreSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: attach(*, ip: str | None = None, port: int | None = None, password: str | None = None, server_info_file: str | None = None) -> PreSession
+   :classmethod:
+
+
+   
+   Attach to an existing CFX-Pre service and wrap the session.
+
+
+   :Parameters:
+
+       **ip** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           IP address of the running CFX service to attach to.
+
+       **port** : :class:`python:int` | :data:`python:None`, default: :data:`python:None`
+           Port of the running CFX service to attach to.
+
+       **password** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Password for the running CFX service, when required.
+
+       **server_info_file** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           PyCFX server information file to use for attachment.
+
+
+
+   :Returns:
+
+       'PreSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: from_sinfo(sinfo_path: str) -> PreSession
+   :classmethod:
+
+
+   
+   Attach to CFX-Pre using a PyCFX server information file.
+
+
+   :Parameters:
+
+       **sinfo_path** : :class:`python:str`
+           PyCFX server information file to use for attachment.
+
+
+
+   :Returns:
+
+       'PreSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: import_mesh(file_path: str) -> None
+
+   
+   Import a mesh file into the wrapped CFX-Pre session.
+
+
+   :Parameters:
+
+       **file_path** : :class:`python:str`
+           Mesh file path to import into CFX-Pre.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The mesh is loaded into the active CFX-Pre case.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: open_case(file_path: str) -> None
+
+   
+   Open an existing CFX case in the wrapped CFX-Pre session.
+
+
+   :Parameters:
+
+       **file_path** : :class:`python:str`
+           CFX case file path to open.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The active CFX-Pre case is replaced by the requested case.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: write_solver_input(file_path: str) -> None
+
+   
+   Write a CFX-Solver input file from the current CFX-Pre setup.
+
+
+   :Parameters:
+
+       **file_path** : :class:`python:str`
+           Destination ``.def`` file path for the solver input.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The solver input file is written on disk.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: exit() -> None
+
+   
+   Exit the wrapped CFX session and release its resources.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

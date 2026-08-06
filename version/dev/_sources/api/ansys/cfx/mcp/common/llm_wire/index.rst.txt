@@ -1,0 +1,987 @@
+
+
+
+
+
+
+The ``llm_wire.py`` module
+==========================
+
+.. py:module:: ansys.cfx.mcp.common.llm_wire
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: llm_wire
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.llm_wire.ModelConfig`
+            - Resolved chat endpoint configuration.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.llm_wire.RetrySpec`
+            - Retry/backoff policy for LLM transport calls.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.llm_wire.LLMProfile`
+            - Resolved provider and transport settings for an LLM call.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.llm_wire.AaliChatModel`
+            - A single resolved chat-model entry from the AALI models config.
+
+
+
+
+    .. tab-item:: Exceptions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.llm_wire.LLMTransportError`
+            - Raised when an LLM transport call fails.
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~env_flag`
+            - Read a boolean environment flag using common truthy and falsy strings.
+
+
+          * - :py:obj:`~resolve_tls_verify`
+            - Resolve TLS verification settings for outbound LLM HTTP requests.
+
+
+          * - :py:obj:`~first_model_token`
+            - Return the first model identifier from a comma-separated model list.
+
+
+          * - :py:obj:`~normalize_endpoint`
+            - Normalize an LLM endpoint URL by removing trailing slashes.
+
+
+          * - :py:obj:`~resolve_model_config`
+            - Resolve provider, transport, endpoint, and model settings from the environment.
+
+
+          * - :py:obj:`~detect_provider`
+            - Infer the LLM provider from an explicit provider, model name, or endpoint URL.
+
+
+          * - :py:obj:`~resolve_litellm_route`
+            - Resolve the LiteLLM model route and API key for the selected provider.
+
+
+          * - :py:obj:`~native_provider_configured`
+            - Return whether a native provider has enough configuration to run.
+
+
+          * - :py:obj:`~resolve_profile`
+            - Resolve the full LLM wire profile used for model calls.
+
+
+          * - :py:obj:`~resolve_model_quirks`
+            - Resolve request-format quirks required by the selected model.
+
+
+          * - :py:obj:`~max_tokens_param_for`
+            - Return the max-token request parameter name for a provider and model.
+
+
+          * - :py:obj:`~send_temperature_for`
+            - Return whether temperature should be sent for a provider and model.
+
+
+          * - :py:obj:`~build_chat_body`
+            - Build an OpenAI-compatible chat-completions request body.
+
+
+          * - :py:obj:`~build_litellm_kwargs`
+            - Build keyword arguments for a LiteLLM completion call.
+
+
+          * - :py:obj:`~auth_headers`
+            - Build HTTP authorization headers for an LLM provider profile.
+
+
+          * - :py:obj:`~extract_chat_text`
+            - Extract assistant text from a chat-completion provider response.
+
+
+          * - :py:obj:`~call`
+            - Send a synchronous chat-completion request through the configured LLM transport.
+
+
+          * - :py:obj:`~acall`
+            - Send an asynchronous chat-completion request through the configured LLM transport.
+
+
+          * - :py:obj:`~load_aali_chat_model`
+            - Return the first usable chat model from the AALI config, or ``None``.
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~logger`
+            - 
+
+
+
+    .. tab-item:: Constants
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~DEFAULT_MODEL`
+            - 
+
+
+          * - :py:obj:`~PROVIDER_OPENAI`
+            - 
+
+
+          * - :py:obj:`~PROVIDER_AZURE`
+            - 
+
+
+          * - :py:obj:`~PROVIDER_ANTHROPIC`
+            - 
+
+
+          * - :py:obj:`~PROVIDER_GEMINI`
+            - 
+
+
+          * - :py:obj:`~PROVIDER_COMPAT`
+            - 
+
+
+          * - :py:obj:`~TRANSPORT_LITELLM`
+            - 
+
+
+          * - :py:obj:`~TRANSPORT_COMPAT`
+            - 
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> ModelConfig</api/ansys/cfx/mcp/common/llm_wire/ModelConfig>
+    <span class="nf nf-cod-symbol_class"></span> RetrySpec</api/ansys/cfx/mcp/common/llm_wire/RetrySpec>
+    <span class="nf nf-cod-symbol_class"></span> LLMProfile</api/ansys/cfx/mcp/common/llm_wire/LLMProfile>
+    <span class="nf nf-cod-symbol_class"></span> AaliChatModel</api/ansys/cfx/mcp/common/llm_wire/AaliChatModel>
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-md-lightning_bolt"></span> LLMTransportError</api/ansys/cfx/mcp/common/llm_wire/LLMTransportError>
+
+
+
+
+
+
+
+Description
+-----------
+
+Wire helpers for LiteLLM/OpenAI-compatible chat endpoints.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: env_flag(name: str, *, default: bool, env=os.environ) -> bool
+
+   
+   Read a boolean environment flag using common truthy and falsy strings.
+
+
+   :Parameters:
+
+       **name** : :class:`python:str`
+           Name of the object, resource, or field to process.
+
+       **default** : :ref:`bool <python:bltin-boolean-values>`
+           Fallback value used when no explicit setting is present.
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: resolve_tls_verify(env=os.environ) -> bool | str
+
+   
+   Resolve TLS verification settings for outbound LLM HTTP requests.
+
+
+   :Parameters:
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>` | :class:`python:str`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: first_model_token(raw: str | None) -> str | None
+
+   
+   Return the first model identifier from a comma-separated model list.
+
+
+   :Parameters:
+
+       **raw** : :class:`python:str` | :data:`python:None`
+           Raw payload returned by PyCFX or a provider API.
+
+
+
+   :Returns:
+
+       :class:`python:str` | :data:`python:None`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: normalize_endpoint(url: str) -> str
+
+   
+   Normalize an LLM endpoint URL by removing trailing slashes.
+
+
+   :Parameters:
+
+       **url** : :class:`python:str`
+           Endpoint URL to normalize or inspect.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: resolve_model_config(*, endpoint: str | None = None, api_key: str | None = None, model: str | None = None, auth_style: str | None = None, env=os.environ) -> ModelConfig
+
+   
+   Resolve provider, transport, endpoint, and model settings from the environment.
+
+
+   :Parameters:
+
+       **endpoint** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider endpoint used for the LLM request. Default is ``None``.
+
+       **api_key** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           API key used to authenticate the provider request. Default is ``None``.
+
+       **model** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Model identifier selected for the request. Default is ``None``.
+
+       **auth_style** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Authorization-header style required by the provider. Default is ``None``.
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :obj:`ModelConfig`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: detect_provider(model: str | None, endpoint: str | None, *, env=os.environ) -> str
+
+   
+   Infer the LLM provider from an explicit provider, model name, or endpoint URL.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str` | :data:`python:None`
+           Model identifier selected for the request.
+
+       **endpoint** : :class:`python:str` | :data:`python:None`
+           Provider endpoint used for the LLM request.
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: resolve_litellm_route(provider: str, model: str) -> str
+
+   
+   Resolve the LiteLLM model route and API key for the selected provider.
+
+
+   :Parameters:
+
+       **provider** : :class:`python:str`
+           LLM provider name selected for the request.
+
+       **model** : :class:`python:str`
+           Model identifier selected for the request.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: native_provider_configured(model: str | None, *, env=os.environ) -> bool
+
+   
+   Return whether a native provider has enough configuration to run.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str` | :data:`python:None`
+           Model identifier selected for the request.
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: resolve_profile(*, model: str | None = None, endpoint: str | None = None, auth_style: str | None = None, env=os.environ) -> LLMProfile
+
+   
+   Resolve the full LLM wire profile used for model calls.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Model identifier selected for the request. Default is ``None``.
+
+       **endpoint** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider endpoint used for the LLM request. Default is ``None``.
+
+       **auth_style** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Authorization-header style required by the provider. Default is ``None``.
+
+       **env** : :obj:`Any`, :obj:`optional`
+           Environment mapping used to resolve LLM configuration. Default is ``os.environ``.
+
+
+
+   :Returns:
+
+       :obj:`LLMProfile`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: resolve_model_quirks(model: str) -> dict[str, Any]
+
+   
+   Resolve request-format quirks required by the selected model.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str`
+           Model identifier selected for the request.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: max_tokens_param_for(model: str) -> str
+
+   
+   Return the max-token request parameter name for a provider and model.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str`
+           Model identifier selected for the request.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: send_temperature_for(model: str) -> bool
+
+   
+   Return whether temperature should be sent for a provider and model.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str`
+           Model identifier selected for the request.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: build_chat_body(*, model: str, messages: Sequence[dict[str, Any]], max_tokens: int | None = None, temperature: float | None = None) -> dict[str, Any]
+
+   
+   Build an OpenAI-compatible chat-completions request body.
+
+
+   :Parameters:
+
+       **model** : :class:`python:str`
+           Model identifier selected for the request.
+
+       **messages** : :obj:`Sequence`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Chat messages to send to the model.
+
+       **max_tokens** : :class:`python:int` | :data:`python:None`, :obj:`optional`
+           Maximum number of tokens requested from the model. Default is ``None``.
+
+       **temperature** : :class:`python:float` | :data:`python:None`, :obj:`optional`
+           Sampling temperature for providers that support it. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: build_litellm_kwargs(profile: LLMProfile, messages: Sequence[dict[str, Any]], *, max_tokens: int | None = None, temperature: float | None = None, api_key: str | None = None, api_base: str | None = None, api_version: str | None = None) -> dict[str, Any]
+
+   
+   Build keyword arguments for a LiteLLM completion call.
+
+
+   :Parameters:
+
+       **profile** : :obj:`LLMProfile`
+           Resolved LLM provider profile used to build requests.
+
+       **messages** : :obj:`Sequence`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Chat messages to send to the model.
+
+       **max_tokens** : :class:`python:int` | :data:`python:None`, :obj:`optional`
+           Maximum number of tokens requested from the model. Default is ``None``.
+
+       **temperature** : :class:`python:float` | :data:`python:None`, :obj:`optional`
+           Sampling temperature for providers that support it. Default is ``None``.
+
+       **api_key** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           API key used to authenticate the provider request. Default is ``None``.
+
+       **api_base** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API base URL override. Default is ``None``.
+
+       **api_version** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API version override, when required. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: auth_headers(api_key: str | None, *, auth_style: str = 'bearer', base: dict[str, str] | None = None) -> dict[str, str]
+
+   
+   Build HTTP authorization headers for an LLM provider profile.
+
+
+   :Parameters:
+
+       **api_key** : :class:`python:str` | :data:`python:None`
+           API key used to authenticate the provider request.
+
+       **auth_style** : :class:`python:str`, :obj:`optional`
+           Authorization-header style required by the provider. Default is ``'bearer'``.
+
+       **base** : :class:`python:dict`\[:class:`python:str`, :class:`python:str`] | :data:`python:None`, :obj:`optional`
+           Existing headers to extend. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:str`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: extract_chat_text(payload: dict[str, Any]) -> str
+
+   
+   Extract assistant text from a chat-completion provider response.
+
+
+   :Parameters:
+
+       **payload** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured payload to process.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: call(profile: LLMProfile, messages: Sequence[dict[str, Any]], *, max_tokens: int | None = None, temperature: float | None = None, api_key: str | None = None, api_base: str | None = None, api_version: str | None = None) -> dict[str, Any]
+
+   
+   Send a synchronous chat-completion request through the configured LLM transport.
+
+
+   :Parameters:
+
+       **profile** : :obj:`LLMProfile`
+           Resolved LLM provider profile used to build requests.
+
+       **messages** : :obj:`Sequence`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Chat messages to send to the model.
+
+       **max_tokens** : :class:`python:int` | :data:`python:None`, :obj:`optional`
+           Maximum number of tokens requested from the model. Default is ``None``.
+
+       **temperature** : :class:`python:float` | :data:`python:None`, :obj:`optional`
+           Sampling temperature for providers that support it. Default is ``None``.
+
+       **api_key** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           API key used to authenticate the provider request. Default is ``None``.
+
+       **api_base** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API base URL override. Default is ``None``.
+
+       **api_version** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API version override, when required. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: acall(profile: LLMProfile, messages: Sequence[dict[str, Any]], *, max_tokens: int | None = None, temperature: float | None = None, api_key: str | None = None, api_base: str | None = None, api_version: str | None = None) -> dict[str, Any]
+   :async:
+
+
+   
+   Send an asynchronous chat-completion request through the configured LLM transport.
+
+
+   :Parameters:
+
+       **profile** : :obj:`LLMProfile`
+           Resolved LLM provider profile used to build requests.
+
+       **messages** : :obj:`Sequence`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Chat messages to send to the model.
+
+       **max_tokens** : :class:`python:int` | :data:`python:None`, :obj:`optional`
+           Maximum number of tokens requested from the model. Default is ``None``.
+
+       **temperature** : :class:`python:float` | :data:`python:None`, :obj:`optional`
+           Sampling temperature for providers that support it. Default is ``None``.
+
+       **api_key** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           API key used to authenticate the provider request. Default is ``None``.
+
+       **api_base** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API base URL override. Default is ``None``.
+
+       **api_version** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Provider API version override, when required. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: load_aali_chat_model() -> AaliChatModel | None
+
+   
+   Return the first usable chat model from the AALI config, or ``None``.
+
+   Never raises: any I/O or parse error is logged and yields ``None`` so
+   the caller can fall back to its own defaults.
+
+
+
+
+   :Returns:
+
+       :obj:`AaliChatModel` | :data:`python:None`
+           Result produced by the function.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:data:: DEFAULT_MODEL
+   :value: 'gpt-4o-mini'
+
+
+.. py:data:: PROVIDER_OPENAI
+   :value: 'openai'
+
+
+.. py:data:: PROVIDER_AZURE
+   :value: 'azure'
+
+
+.. py:data:: PROVIDER_ANTHROPIC
+   :value: 'anthropic'
+
+
+.. py:data:: PROVIDER_GEMINI
+   :value: 'gemini'
+
+
+.. py:data:: PROVIDER_COMPAT
+   :value: 'compat'
+
+
+.. py:data:: TRANSPORT_LITELLM
+   :value: 'litellm'
+
+
+.. py:data:: TRANSPORT_COMPAT
+   :value: 'openai_compat'
+
+
+.. py:data:: logger
+
+
+

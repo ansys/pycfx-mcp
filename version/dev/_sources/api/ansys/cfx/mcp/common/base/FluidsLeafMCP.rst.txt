@@ -1,0 +1,332 @@
+
+
+
+
+
+
+:class:`FluidsLeafMCP`
+======================
+
+
+.. py:class:: ansys.cfx.mcp.common.base.FluidsLeafMCP(*, backends: dict[str, ansys.cfx.mcp.common.backend.Backend], expose_tools: Iterable[str] = ALL_TOOLS, hide_connection_tools: bool = False, conversation_store: Optional[ansys.cfx.mcp.common.conversation.ConversationStore] = None, codegen_pipeline: Optional[ansys.cfx.mcp.common.codegen.CodegenPipeline] = None, name: Optional[str] = None, **fastmcp_kwargs: Any)
+
+   Bases: :py:obj:`ansys.common.mcp.server.PyAnsysBaseMCP`
+
+
+   
+   Base server class for a single shared MCP leaf.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: FluidsLeafMCP
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~run`
+            - Run the MCP server event loop for the configured transport.
+          * - :py:attr:`~product_startup`
+            - Run product-specific startup hooks before serving MCP requests.
+          * - :py:attr:`~product_cleanup`
+            - Run product-specific cleanup hooks before shutdown.
+          * - :py:attr:`~build_toolsets`
+            - Build toolset metadata for the tools exposed by this leaf server.
+          * - :py:attr:`~register_run_code_observer`
+            - Register a callback that observes successful run-code executions.
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~backend`
+            - Return the currently active backend instance.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~leaf_name`
+            - 
+          * - :py:attr:`~default_backend_kind`
+            - 
+          * - :py:attr:`~cache_ttl_seconds`
+            - 
+          * - :py:attr:`~connect_on_startup`
+            - 
+          * - :py:attr:`~component_label`
+            - 
+          * - :py:attr:`~error_remediation_description`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.base import FluidsLeafMCP
+
+Property detail
+---------------
+
+.. py:property:: backend
+   :type: ansys.cfx.mcp.common.backend.Backend
+
+
+   
+   Return the currently active backend instance.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Backend`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: leaf_name
+   :type:  str
+   :value: 'fluids'
+
+
+.. py:attribute:: default_backend_kind
+   :type:  Optional[str]
+   :value: None
+
+
+.. py:attribute:: cache_ttl_seconds
+   :type:  float
+   :value: 30.0
+
+
+.. py:attribute:: connect_on_startup
+   :type:  bool
+   :value: False
+
+
+.. py:attribute:: component_label
+   :type:  str
+   :value: ''
+
+
+.. py:attribute:: error_remediation_description
+   :type:  str
+   :value: 'Generate a Markdown remediation / how-to answer for a natural-language request (error message,...
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: run(transport: str = 'stdio', host: str | None = None, port: int | None = None) -> None
+
+   
+   Run the MCP server event loop for the configured transport.
+
+
+   :Parameters:
+
+       **transport** : :class:`python:str`, :obj:`optional`
+           LLM transport implementation to use. Default is ``'stdio'``.
+
+       **host** : :class:`python:str` | :data:`python:None`, :obj:`optional`
+           Host interface for the MCP transport. Default is ``None``.
+
+       **port** : :class:`python:int` | :data:`python:None`, :obj:`optional`
+           Port of the running CFX service to attach to. Default is ``None``.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: product_startup() -> None
+
+   
+   Run product-specific startup hooks before serving MCP requests.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: product_cleanup() -> None
+
+   
+   Run product-specific cleanup hooks before shutdown.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: build_toolsets() -> list[dict[str, Any]]
+
+   
+   Build toolset metadata for the tools exposed by this leaf server.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           List of structured records matching the request.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: register_run_code_observer(observer: Callable[Ellipsis, Awaitable[None] | None]) -> None
+
+   
+   Register a callback that observes successful run-code executions.
+
+
+   :Parameters:
+
+       **observer** : :obj:`Callable`\[..., :obj:`Awaitable`\[:data:`python:None`] | :data:`python:None`]
+           Callback to notify after run-code execution.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; the callback is stored for later notifications.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

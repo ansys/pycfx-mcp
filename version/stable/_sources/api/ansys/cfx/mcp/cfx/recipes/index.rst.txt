@@ -1,0 +1,185 @@
+
+
+
+
+
+
+The ``recipes.py`` module
+=========================
+
+.. py:module:: ansys.cfx.mcp.cfx.recipes
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: recipes
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.recipes.Recipe`
+            - A single canonical PyCFX pattern.
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~match_recipes`
+            - Return CFX recipes whose trigger words match the user prompt.
+
+
+          * - :py:obj:`~recipes_prompt_block`
+            - Render matching CFX recipes as a compact prompt context block.
+
+
+
+
+    .. tab-item:: Constants
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~RECIPES`
+            - 
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> Recipe</api/ansys/cfx/mcp/cfx/recipes/Recipe>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Canonical PyCFX code recipes.
+
+These recipes are distilled from the `examples <https://cfx.docs.pyansys.com/version/stable/examples/index.html>`_
+in PyCFX documentation and act as the authoritative pattern library for
+code generation. Anchoring the LLM to these snippets keeps generated code
+idiomatic (correct creation idiom and real attribute names) and *minimal*.
+When a user asks to "create an outlet," the model emits only the required
+lines and does not invent extra boundary-condition values that were never requested.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: match_recipes(prompt: str, *, limit: int = 3) -> list[Recipe]
+
+   
+   Return CFX recipes whose trigger words match the user prompt.
+
+
+   :Parameters:
+
+       **prompt** : :class:`python:str`
+           Natural-language user request to process.
+
+       **limit** : :class:`python:int`, default: 3
+           Maximum number of records to return.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:obj:`Recipe`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: recipes_prompt_block(recipes: list[Recipe]) -> str
+
+   
+   Render matching CFX recipes as a compact prompt context block.
+
+
+   :Parameters:
+
+       **recipes** : :class:`python:list`\[:obj:`Recipe`]
+           Recipe definitions to render into the code-generation prompt.
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:data:: RECIPES
+   :type:  tuple[Recipe, Ellipsis]
+
+
+

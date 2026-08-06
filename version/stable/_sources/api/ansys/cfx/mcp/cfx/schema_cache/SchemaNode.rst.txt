@@ -1,0 +1,239 @@
+
+
+
+
+
+
+:class:`SchemaNode`
+===================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.schema_cache.SchemaNode
+
+   
+   A single indexed entry in the CFX schema tree.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: SchemaNode
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~is_named`
+            - Whether this schema entry represents a named-object collection.
+          * - :py:attr:`~is_parameter`
+            - Whether this schema entry represents a parameter leaf.
+          * - :py:attr:`~has_allowed_values`
+            - Whether this schema declared an explicit value set.
+          * - :py:attr:`~is_command`
+            - Whether this schema entry represents a command.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~path`
+            - 
+          * - :py:attr:`~kind`
+            - 
+          * - :py:attr:`~cfx_type`
+            - 
+          * - :py:attr:`~help`
+            - 
+          * - :py:attr:`~allowed_values`
+            - 
+          * - :py:attr:`~arguments`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.schema_cache import SchemaNode
+
+Property detail
+---------------
+
+.. py:property:: is_named
+   :type: bool
+
+
+   
+   Whether this schema entry represents a named-object collection.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: is_parameter
+   :type: bool
+
+
+   
+   Whether this schema entry represents a parameter leaf.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: has_allowed_values
+   :type: bool
+
+
+   
+   Whether this schema declared an explicit value set.
+
+   ``True`` only when the bundled configuration files attach an
+   enum-style values list to this path. ``False`` for
+   free-form primitives (``integer``/``real``/``string``
+   without an enum cross-reference.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: is_command
+   :type: bool
+
+
+   
+   Whether this schema entry represents a command.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: path
+   :type:  str
+
+.. py:attribute:: kind
+   :type:  str
+
+.. py:attribute:: cfx_type
+   :type:  str
+
+.. py:attribute:: help
+   :type:  str
+   :value: ''
+
+
+.. py:attribute:: allowed_values
+   :type:  tuple[Any, Ellipsis] | None
+   :value: None
+
+
+.. py:attribute:: arguments
+   :type:  tuple[CommandArgument, Ellipsis]
+   :value: ()
+
+
+
+
+
+

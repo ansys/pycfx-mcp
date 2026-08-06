@@ -1,0 +1,177 @@
+
+
+
+
+
+
+:class:`CodegenPipeline`
+========================
+
+
+.. py:class:: ansys.cfx.mcp.common.codegen.CodegenPipeline(*, store: ansys.cfx.mcp.common.conversation.ConversationStore)
+
+   
+   Default pipeline: delegate to the backend.
+
+   Subclass and override `generate` / `clarify` to add LLM orchestration,
+   retrieval, validation passes, etc.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: CodegenPipeline
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~generate`
+            - Generate CFX Python code or a clarification response from a user prompt.
+          * - :py:attr:`~clarify`
+            - Continue code generation after a clarification answer.
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~store`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.codegen import CodegenPipeline
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: store
+
+
+
+Method detail
+-------------
+
+.. py:method:: generate(*, backend: ansys.cfx.mcp.common.backend.Backend, prompt: str, session_id: Optional[str] = None, context: Optional[dict[str, Any]] = None) -> ansys.cfx.mcp.common.models.CodegenResult
+   :async:
+
+
+   
+   Generate CFX Python code or a clarification response from a user prompt.
+
+
+   :Parameters:
+
+       **backend** : :obj:`Backend`
+           Backend that provides CFX state, validation, and execution services.
+
+       **prompt** : :class:`python:str`
+           Natural-language user request to process.
+
+       **session_id** : :obj:`Optional`\[:class:`python:str`], :obj:`optional`
+           Conversation identifier used to retrieve or continue context. Default is ``None``.
+
+       **context** : :obj:`Optional`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]], :obj:`optional`
+           Additional context supplied by the caller. Default is ``None``.
+
+
+
+   :Returns:
+
+       :obj:`CodegenResult`
+           Generated-code response or clarification request.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: clarify(*, backend: ansys.cfx.mcp.common.backend.Backend, session_id: str, clarification_id: str, answer: str) -> ansys.cfx.mcp.common.models.CodegenResult
+   :async:
+
+
+   
+   Continue code generation after a clarification answer.
+
+
+   :Parameters:
+
+       **backend** : :obj:`Backend`
+           Backend that provides CFX state, validation, and execution services.
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+       **clarification_id** : :class:`python:str`
+           Identifier of the clarification being answered or checked.
+
+       **answer** : :class:`python:str`
+           User answer to the clarification prompt.
+
+
+
+   :Returns:
+
+       :obj:`CodegenResult`
+           Generated-code response or clarification request.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

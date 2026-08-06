@@ -1,0 +1,80 @@
+
+
+
+
+
+
+The ``pre_session.py`` module
+=============================
+
+.. py:module:: ansys.cfx.mcp.cfx.sessions.pre_session
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: pre_session
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.sessions.pre_session.PreSession`
+            - Wrapper for a live PyCFX PreProcessing session.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> PreSession</api/ansys/cfx/mcp/cfx/sessions/pre_session/PreSession>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+MCP-side session wrapper for a PyCFX PreProcessing (CFX-Pre) session.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+

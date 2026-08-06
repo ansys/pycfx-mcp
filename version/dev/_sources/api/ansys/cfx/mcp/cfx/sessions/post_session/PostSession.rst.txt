@@ -1,0 +1,358 @@
+
+
+
+
+
+
+:class:`PostSession`
+====================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.sessions.post_session.PostSession(session: Any, *, mode: str = 'launch')
+
+   
+   Wrapper for a live PyCFX PostProcessing session.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+
+.. py:currentmodule:: PostSession
+
+Overview
+--------
+
+.. tab-set::
+
+
+   .. tab-item:: Constructors
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~launch`
+            - Launch CFD-Post for a CFX results file and wrap the session.
+          * - :py:attr:`~attach`
+            - Attach to an existing CFD-Post service and wrap the session.
+          * - :py:attr:`~from_sinfo`
+            - Attach to CFD-Post using a PyCFX server information file.
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~load_results`
+            - Load a CFX results file into the wrapped CFD-Post session.
+          * - :py:attr:`~exit`
+            - Exit the wrapped CFX session and release its resources.
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~raw`
+            - Underlying PyCFX CFD-Post session object.
+          * - :py:attr:`~is_active`
+            - Whether the wrapped CFX session still appears active.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~mode`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.sessions.post_session import PostSession
+
+Property detail
+---------------
+
+.. py:property:: raw
+   :type: Any
+
+
+   
+   Underlying PyCFX CFD-Post session object.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Raw PyCFX postprocessing session used by generated code and backend helpers.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: is_active
+   :type: bool
+
+
+   
+   Whether the wrapped CFX session still appears active.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the wrapped session appears to still be usable.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: mode
+   :value: 'launch'
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: launch(results_file: str, *, ui_mode: str | None = None, product_version: str | None = None, cleanup_on_exit: bool = True) -> PostSession
+   :classmethod:
+
+
+   
+   Launch CFD-Post for a CFX results file and wrap the session.
+
+
+   :Parameters:
+
+       **results_file** : :class:`python:str`
+           Cached or requested CFX results-file path.
+
+       **ui_mode** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional CFX UI mode for the launched process.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether PyCFX should clean up the launched process on exit.
+
+
+
+   :Returns:
+
+       'PostSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: attach(*, ip: str | None = None, port: int | None = None, password: str | None = None, server_info_file: str | None = None) -> PostSession
+   :classmethod:
+
+
+   
+   Attach to an existing CFD-Post service and wrap the session.
+
+
+   :Parameters:
+
+       **ip** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           IP address of the running CFX service to attach to.
+
+       **port** : :class:`python:int` | :data:`python:None`, default: :data:`python:None`
+           Port of the running CFX service to attach to.
+
+       **password** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Password for the running CFX service, when required.
+
+       **server_info_file** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           PyCFX server information file to use for attachment.
+
+
+
+   :Returns:
+
+       'PostSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: from_sinfo(sinfo_path: str) -> PostSession
+   :classmethod:
+
+
+   
+   Attach to CFD-Post using a PyCFX server information file.
+
+
+   :Parameters:
+
+       **sinfo_path** : :class:`python:str`
+           PyCFX server information file to use for attachment.
+
+
+
+   :Returns:
+
+       'PostSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: load_results(file_path: str) -> None
+
+   
+   Load a CFX results file into the wrapped CFD-Post session.
+
+
+   :Parameters:
+
+       **file_path** : :class:`python:str`
+           CFX ``.res`` file path to open in CFD-Post.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The CFD-Post session loads the requested results file.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: exit() -> None
+
+   
+   Exit the wrapped CFX session and release its resources.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
