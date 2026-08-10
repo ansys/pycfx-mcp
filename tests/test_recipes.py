@@ -91,6 +91,7 @@ def test_recipes_prompt_block_contains_minimal_directive() -> None:
     assert "create_outlet" in block
     assert 'boundary["outlet"] = {}' in block
 
+
 def test_recipe_render_includes_optional_and_notes() -> None:
     recipe = Recipe(
         name="x",

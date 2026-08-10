@@ -512,6 +512,7 @@ class CFXBackend(Backend):
 
     kind: str = "pycfx"
     label: str = "Ansys CFX (PyCFX)"
+
     def __init__(self) -> None:
         """Initialize this object with the dependencies required for later operations.
 

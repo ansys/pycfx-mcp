@@ -44,7 +44,7 @@ Added
         :header-rows: 0
         :widths: auto
 
-        * - Add schema-grounded CFX codegen and provider-agnostic LLM fallback
+        * - Add schema-grounded CFX Python validation
           - `#7 <https://github.com/ansys/pycfx-mcp/pull/7>`_
 
         * - Improve CFX framework
