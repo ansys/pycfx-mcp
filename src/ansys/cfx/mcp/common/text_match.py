@@ -16,17 +16,16 @@
 
 """Shared string-matching utilities for fuzzy/typo-tolerant lookup.
 
-These helpers are used everywhere the agent has to reconcile an
-LLM-supplied identifier against a finite, authoritative set of known
-strings — material names, allowed values of an enum-typed setting,
-NamedObject keys, dict-key schemas, command kwargs, etc.
+These helpers are used everywhere callers need to reconcile a supplied
+identifier against a finite, authoritative set of known strings — material
+names, allowed values of an enum-typed setting, NamedObject keys, dict-key
+schemas, command kwargs, etc.
 
-Keeping the implementation in one place avoids the trap we hit
-historically: ``_check_value`` learned to tolerate the LLM's
-``"least-squares-cell-based"`` → ``"least-square-cell-based"`` typo
-while ``copy_material`` could not even resolve ``"water-vapour"`` →
-``"water-vapor"``. Both are the same single-edit problem; both should
-share the same solution.
+Keeping the implementation in one place avoids the trap we hit historically:
+``_check_value`` learned to tolerate the ``"least-squares-cell-based"`` ->
+``"least-square-cell-based"`` typo while ``copy_material`` could not even
+resolve ``"water-vapour"`` -> ``"water-vapor"``. Both are the same
+single-edit problem; both should share the same solution.
 
 Public API:
     * :func:`edit_distance_le_one` — fast ``≤ 1`` Levenshtein verdict.

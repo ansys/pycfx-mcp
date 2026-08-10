@@ -23,8 +23,6 @@ import logging
 from typing import Any, Optional
 
 from ansys.cfx.mcp.cfx import CFXMCP
-from ansys.cfx.mcp.common.codegen import CodegenPipeline
-from ansys.cfx.mcp.common.conversation import ConversationStore
 
 
 def _argparser() -> argparse.ArgumentParser:
@@ -62,15 +60,11 @@ def _build_server(args: argparse.Namespace) -> Any:
     Any
         Value computed by the helper for the requested PyCFX-MCP workflow.
     """
-    store = ConversationStore()
-    pipeline = CodegenPipeline(store=store)
     default_backend_kind = args.backend or CFXMCP.default_backend_kind
     if default_backend_kind not in {"pycfx"}:
         raise SystemExit(f"ansys-cfx-mcp: unknown backend kind: {default_backend_kind}")
     kwargs: dict[str, Any] = {
         "name": "ansys-cfx-mcp",
-        "conversation_store": store,
-        "codegen_pipeline": pipeline,
     }
     return CFXMCP(**kwargs)
 

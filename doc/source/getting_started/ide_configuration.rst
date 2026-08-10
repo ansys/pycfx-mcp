@@ -104,37 +104,6 @@ PyCFX-MCP as a STDIO server:
 For a local checkout, set ``command`` to the virtual environment executable
 and then restart Cursor.
 
-Environment variables
----------------------
-
-Client-launched STDIO servers inherit the environment from the client process.
-Set provider keys and LLM routing variables before you launch the client when
-you want optional ``codegen`` LLM fallback.
-
-.. list-table:: **Common environment variables**
-   :header-rows: 1
-   :widths: 30 70
-
-   * - Variable
-     - Description
-   * - ``OPENAI_API_KEY``
-     - API key for native OpenAI model calls through the ``providers`` extra.
-   * - ``ANTHROPIC_API_KEY``
-     - API key for native Anthropic Claude model calls through the ``providers`` extra.
-   * - ``GEMINI_API_KEY`` or ``GOOGLE_API_KEY``
-     - API key for native Google Gemini model calls through the ``providers`` extra.
-   * - ``AZURE_API_KEY``
-     - API key for Azure OpenAI model calls through the providers extra.
-   * - ``LLM_PROVIDER``
-     - Explicit provider name, such as ``openai``, ``azure``, ``anthropic``, ``gemini``, or ``compat``.
-   * - ``LLM_MODEL``
-     - Model identifier, such as ``gpt-4o``, ``claude-3-5-sonnet``, or ``gemini-1.5-pro``. The default is ``gpt-4o-mini``.
-   * - ``LLM_ENDPOINT``
-     - OpenAI-compatible endpoint URL for direct HTTP transport.
-   * - ``LLM_API_KEY``
-     - API key for ``LLM_ENDPOINT`` direct HTTP transport.
-
-For the full reference, see :doc:`../user_guide/configuration`.
 
 HTTP transport
 --------------

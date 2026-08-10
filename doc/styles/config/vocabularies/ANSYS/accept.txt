@@ -16,7 +16,6 @@ PyCFX-MCP
 Python
 RST
 Sphinx
-codegen
 Claude
 Claude Code
 Claude Desktop

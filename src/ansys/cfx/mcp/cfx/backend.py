@@ -24,22 +24,14 @@ import logging
 import os
 import re
 import sys
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from ansys.cfx.mcp.cfx.dependencies import (
     check_cfx_prerequisites,
 )
 from ansys.cfx.mcp.cfx.sessions.session_manager import SessionManager
 from ansys.cfx.mcp.common.backend import Backend
-from ansys.cfx.mcp.common.errors import BackendUnavailable
-from ansys.cfx.mcp.common.models import (
-    Clarification,
-    ClarificationOption,
-    CodegenResult,
-    ConnectResult,
-    RunCodeResult,
-    SessionStatus,
-)
+from ansys.cfx.mcp.common.models import ConnectResult, RunCodeResult, SessionStatus
 from ansys.cfx.mcp.common.validation import (
     _ALLOWED_BUILTINS,
     _ALLOWED_IMPORTS,
@@ -55,7 +47,7 @@ def _strict_validation_enabled() -> bool:
     Set ``CFX_MCP_STRICT_VALIDATION=1`` (or ``FLUIDS_MCP_STRICT_VALIDATION=1``)
     to promote near-match CFX schema-path warnings to hard
     ``unknown_cfx_path`` errors. The default is off, which means near-matches stay
-    warnings so the LLM can autocorrect.
+    warnings so callers can correct them.
     """
     for var in ("CFX_MCP_STRICT_VALIDATION", "FLUIDS_MCP_STRICT_VALIDATION"):
         val = os.environ.get(var)
@@ -520,7 +512,6 @@ class CFXBackend(Backend):
 
     kind: str = "pycfx"
     label: str = "Ansys CFX (PyCFX)"
-    supports_disconnected_codegen: bool = True
 
     def __init__(self) -> None:
         """Initialize this object with the dependencies required for later operations.
@@ -1718,7 +1709,7 @@ class CFXBackend(Backend):
         tokens : set[str]
             Search tokens produced from the query text.
         entry : dict[str, Any]
-            Schema, API catalog, or conversation entry to inspect.
+            Schema or API catalog entry to inspect.
 
         Returns
         -------
@@ -1738,7 +1729,7 @@ class CFXBackend(Backend):
         score -= 0.05 * path.count(".")
         return score
 
-    # ---- codegen ---------------------------------------------------------
+    # ---- prerequisites ---------------------------------------------------
 
     async def check_prerequisites(
         self,
@@ -1774,34 +1765,7 @@ class CFXBackend(Backend):
             status=SessionManager.status(),
         )
 
-    async def codegen(
-        self,
-        prompt: str,
-        *,
-        session_id: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-    ) -> CodegenResult:
-        """Generate CFX Python code or return a clarification request.
-
-        Parameters
-        ----------
-        prompt : str
-            Natural-language user request to process.
-        session_id : Optional[str], default: None
-            Conversation identifier used to retrieve or continue context.
-        context : Optional[dict[str, Any]], default: None
-            Additional context supplied by the caller.
-
-        Returns
-        -------
-        CodegenResult
-            Generated-code response or clarification request.
-        """
-        raise BackendUnavailable(
-            "Codegen is handled by the external CFX agent or LLM pipeline for the PyCFX backend."
-        )
-
-    def _sanitize_cfx_codegen_code(
+    def _sanitize_cfx_python_code(
         self,
         code: str,
         *,
@@ -1823,9 +1787,9 @@ class CFXBackend(Backend):
         """
         if not code or ".fluid_definition" not in code:
             return code
-        fluid_definition_name = self._resolve_codegen_fluid_definition_key(context)
+        fluid_definition_name = self._resolve_fluid_definition_key(context)
         if not fluid_definition_name:
-            fluid_definition_name = self._infer_codegen_fluid_definition_key(code)
+            fluid_definition_name = self._infer_fluid_definition_key(code)
         if not fluid_definition_name:
             return code
 
@@ -1864,7 +1828,7 @@ class CFXBackend(Backend):
 
         return pattern.sub(repl, code)
 
-    def _infer_codegen_fluid_definition_key(self, code: str) -> str | None:
+    def _infer_fluid_definition_key(self, code: str) -> str | None:
         """Infer the intended fluid-definition key from generated CFX setup code.
 
         Parameters
@@ -1944,7 +1908,7 @@ class CFXBackend(Backend):
         lines.append(code[last_position:])
         return "".join(lines)
 
-    def _resolve_codegen_fluid_definition_key(
+    def _resolve_fluid_definition_key(
         self,
         context: dict[str, Any] | None = None,
     ) -> str | None:
@@ -1991,47 +1955,6 @@ class CFXBackend(Backend):
                     discovered.extend(str(name) for name in fluid_definitions)
         unique = sorted(set(discovered))
         return unique[0] if len(unique) == 1 else None
-
-    def _clarification_result(
-        self,
-        clarification: dict[str, Any],
-        *,
-        session_id: str | None = None,
-    ) -> CodegenResult:
-        """Create a clarification response for missing or ambiguous CFX request inputs.
-
-        Parameters
-        ----------
-        clarification : dict[str, Any]
-            Clarification payload currently waiting for a user answer.
-        session_id : str | None, default: None
-            Conversation identifier used to retrieve or continue context.
-
-        Returns
-        -------
-        CodegenResult
-            Generated-code response or clarification request.
-        """
-        return CodegenResult(
-            status="needs_clarification",
-            message=str(clarification.get("message") or "Missing CFX prerequisite."),
-            session_id=session_id,
-            clarifications=[
-                Clarification(
-                    id=str(clarification["id"]),
-                    question=str(clarification["question"]),
-                    options=[
-                        ClarificationOption(
-                            label=str(option["label"]),
-                            value=str(option["value"]),
-                            description=option.get("description"),
-                        )
-                        for option in clarification.get("options", [])
-                    ],
-                    free_text_allowed=True,
-                )
-            ],
-        )
 
     # ---- run_code --------------------------------------------------------
 
@@ -2156,7 +2079,7 @@ class CFXBackend(Backend):
         cache does not know about, and whose leaf has no
         near-match, are promoted from silent warnings to
         ``unknown_cfx_path`` errors because such tokens almost
-        always signal that the LLM hallucinated an API call.
+        always signal an unsupported API call.
         """
         if not code or not code.strip():
             return RunCodeResult(
@@ -2358,7 +2281,7 @@ class CFXBackend(Backend):
         exec_ns = namespace if isinstance(namespace, dict) else self._exec_ns
         self._ensure_namespace_helpers(exec_ns)
         self._sync_session_refs(exec_ns)
-        code = self._sanitize_cfx_codegen_code(code)
+        code = self._sanitize_cfx_python_code(code)
 
         check = validate_python_source(
             code,

@@ -59,19 +59,19 @@ Example prompts:
 
 	Open the result file in CFD-Post.
 
-Generate and validate code
---------------------------
+Validate and run code
+---------------------
 
-Use ``codegen`` for small Python snippets and ``validate_code`` before running
-them through ``run_code``.
+Use ``validate_code`` before running reviewed Python snippets through
+``run_code``.
 
 Example prompt:
 
 .. code-block:: text
 
-	Generate a small PyCFX snippet to inspect the selected boundary condition. Validate it before execution.
+	Validate this small PyCFX snippet for inspecting the selected boundary condition before execution.
 
-Use generated code for custom model edits or detailed inspection. For standard
+Use reviewed code for custom model edits or detailed inspection. For standard
 lifecycle operations, use ``cfx_workflow`` so you receive typed results and
 consistent errors.
 
@@ -80,5 +80,5 @@ Handle errors
 
 If a tool returns an error, inspect the message and retry with more context.
 Common recovery steps include checking ``session_status``, narrowing your
-``cfx_model_context`` query, or asking ``clarify`` for missing inputs before
-you run a workflow action.
+``cfx_model_context`` query, or supplying missing inputs before you run a
+workflow action.

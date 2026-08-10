@@ -30,12 +30,10 @@ pytestmark = pytest.mark.integration
 
 PUBLIC_TOOLS = (
     "cfx_model_context",
-    "clarify",
     "connect",
     "disconnect",
     "validate_code",
     "session_status",
-    "codegen",
     "cfx_workflow",
     "run_code",
 )
@@ -197,20 +195,6 @@ async def test_cfx_mcp_live_integration_exercises_public_tools() -> None:
     run_code = await _call_tool(leaf, "run_code", code="__return__ = 6 * 7")
     assert run_code.status == "ok"
     assert run_code.return_value == 42
-
-    codegen = await _call_tool(leaf, "codegen", prompt="Return a short PyCFX example.")
-    assert codegen.status in {"ok", "error", "needs_clarification"}
-    if codegen.status == "error":
-        assert codegen.error_code in {"llm_not_configured", "llm_call_failed", "llm_empty_response"}
-
-    clarify = await _call_tool(
-        leaf,
-        "clarify",
-        session_id=codegen.session_id or "missing",
-        clarification_id="c1",
-        answer="ok",
-    )
-    assert clarify.error_code in {"invalid_arguments", "backend_unavailable"}
 
     disconnect = await _call_tool(leaf, "disconnect")
     assert disconnect["status"] == "ok"

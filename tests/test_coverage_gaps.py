@@ -30,18 +30,14 @@ from ansys.cfx.mcp.cfx.sessions.pre_session import PreSession
 from ansys.cfx.mcp.cfx.sessions.session_manager import SessionManager
 from ansys.cfx.mcp.cfx.sessions.solver_session import SolverSession
 from ansys.cfx.mcp.cfx.worker import main as worker_main
-from ansys.cfx.mcp.common import llm_wire
 from ansys.cfx.mcp.common.backend import Backend
 from ansys.cfx.mcp.common.base import select_named_objects_from_mapping
-from ansys.cfx.mcp.common.codegen import CodegenPipeline
-from ansys.cfx.mcp.common.conversation import ConversationStore
 from ansys.cfx.mcp.common.errors import (
     BackendUnavailable,
     InvalidArguments,
-    NotConnected,
     typed_guard,
 )
-from ansys.cfx.mcp.common.models import CodegenResult, ConnectResult, RunCodeResult
+from ansys.cfx.mcp.common.models import ConnectResult, RunCodeResult
 from ansys.cfx.mcp.common.validation import sanitize_python_code, validate_python_source
 
 
@@ -49,12 +45,9 @@ class FakeBackend(Backend):
     kind = "pycfx"
     label = "Fake CFX"
 
-    def __init__(self, *, connected: bool = True, result: CodegenResult | None = None) -> None:
+    def __init__(self, *, connected: bool = True) -> None:
         super().__init__()
         self.connected = connected
-        self.codegen_calls: list[dict[str, object]] = []
-        self.clarify_calls: list[dict[str, object]] = []
-        self.result = result or CodegenResult(status="ok", code="print('ok')")
 
     async def connect(self, **kwargs: object) -> ConnectResult:
         self.connected = True
@@ -64,18 +57,6 @@ class FakeBackend(Backend):
 
     def is_connected(self) -> bool:
         return self.connected
-
-    async def codegen(
-        self, prompt: str, *, session_id: str | None = None, context: dict | None = None
-    ):
-        self.codegen_calls.append({"prompt": prompt, "session_id": session_id, "context": context})
-        return self.result.model_copy(deep=True)
-
-    async def clarify(self, session_id: str, clarification_id: str, answer: str):
-        self.clarify_calls.append(
-            {"session_id": session_id, "clarification_id": clarification_id, "answer": answer}
-        )
-        return self.result.model_copy(deep=True)
 
     async def list_named_objects(self) -> dict[str, list[str]]:
         return {"wall": ["outer", "inner-shadow"], "inlet": ["inlet-1"]}
@@ -167,286 +148,6 @@ def test_cli_build_server_rejects_unknown_backend() -> None:
 
     with pytest.raises(SystemExit, match="unknown backend kind"):
         cli._build_server(args)
-
-
-def test_llm_wire_helpers_resolve_config_headers_and_payload(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    assert llm_wire.env_flag("FLAG", default=True, env={"FLAG": "off"}) is False
-    assert llm_wire.first_model_token("gpt-4 extra") == "gpt-4"
-    assert (
-        llm_wire.normalize_endpoint("https://example.test/v1")
-        == "https://example.test/v1/chat/completions"
-    )
-
-    config = llm_wire.resolve_model_config(
-        env={"LLM_ENDPOINT": "https://host", "LLM_MODEL": "o1 mini"}
-    )
-    assert config.endpoint == "https://host/chat/completions"
-    assert config.model == "o1"
-
-    monkeypatch.setenv("LLM_MAX_TOKENS_PARAM", "limit")
-    assert llm_wire.max_tokens_param_for("gpt-5") == "limit"
-    monkeypatch.delenv("LLM_MAX_TOKENS_PARAM")
-    monkeypatch.setenv("LLM_SEND_TEMPERATURE", "false")
-    body = llm_wire.build_chat_body(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": "hi"}],
-        max_tokens=7,
-        temperature=0.1,
-    )
-    assert body == {
-        "model": "gpt-4o",
-        "messages": [{"role": "user", "content": "hi"}],
-        "max_tokens": 7,
-    }
-
-    assert llm_wire.auth_headers("key", auth_style="azure-api-key") == {
-        "Content-Type": "application/json",
-        "api-key": "key",
-    }
-    assert llm_wire.extract_chat_text({"choices": [{"message": {"content": "hello"}}]}) == "hello"
-    assert llm_wire.extract_chat_text({"choices": [{"text": "fallback"}]}) == "fallback"
-    assert llm_wire.extract_chat_text({"choices": []}) == ""
-
-
-def test_llm_wire_tls_headers_and_response_edge_branches(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(llm_wire, "_TLS_INSECURE_WARNED", False)
-    assert llm_wire.resolve_tls_verify(env={"LLM_TLS_INSECURE": "1"}) is False
-    assert llm_wire.resolve_tls_verify(env={"LLM_CA_BUNDLE": "corp.pem"}) == "corp.pem"
-    assert llm_wire.resolve_tls_verify(env={}) is True
-
-    assert llm_wire.send_temperature_for("gpt-5-mini") is False
-    assert llm_wire.resolve_model_quirks("unknown") == {}
-    assert (
-        llm_wire.normalize_endpoint("https://host/chat/completions")
-        == "https://host/chat/completions"
-    )
-    assert llm_wire.auth_headers(None, base={"X-Test": "1"}) == {"X-Test": "1"}
-    assert llm_wire.auth_headers("key") == {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer key",
-    }
-    assert llm_wire.extract_chat_text({"choices": ["bad"]}) == ""
-    assert llm_wire.extract_chat_text({"choices": [{"message": {"content": 1}}]}) == ""
-    assert llm_wire.extract_chat_text({"choices": [{"text": 1}]}) == ""
-
-
-def test_llm_wire_provider_route_and_profile_resolution() -> None:
-    assert llm_wire.detect_provider("model", None, env={"LLM_PROVIDER": "azure"}) == "azure"
-    assert llm_wire.detect_provider("vertex_ai/gemini-pro", None, env={}) == "gemini"
-    assert llm_wire.detect_provider("claude-3", None, env={}) == "anthropic"
-    assert llm_wire.detect_provider("gemini-pro", None, env={}) == "gemini"
-    assert llm_wire.detect_provider("gpt-4", "https://example.openai.com/v1", env={}) == "openai"
-    assert llm_wire.detect_provider("gpt-4", "https://example.azure.com/v1", env={}) == "azure"
-    assert llm_wire.detect_provider("gpt-4", "https://anthropic.example/v1", env={}) == "anthropic"
-    assert (
-        llm_wire.detect_provider("gpt-4", "https://generativelanguage.googleapis.com/v1", env={})
-        == "gemini"
-    )
-    assert llm_wire.detect_provider("gpt-4", "https://llm.example/v1", env={}) == "compat"
-
-    assert llm_wire.resolve_litellm_route("azure", "deployment") == "azure/deployment"
-    assert llm_wire.resolve_litellm_route("anthropic", "claude") == "anthropic/claude"
-    assert llm_wire.resolve_litellm_route("gemini", "gemini-pro") == "gemini/gemini-pro"
-    assert llm_wire.resolve_litellm_route("openai", "gpt-4") == "openai/gpt-4"
-    assert llm_wire.resolve_litellm_route("compat", "custom/model") == "custom/model"
-    assert llm_wire.native_provider_configured("gpt-4", env={"OPENAI_API_KEY": "key"}) is True
-    assert llm_wire.native_provider_configured("claude-3", env={}) is True
-    assert llm_wire.native_provider_configured("gpt-4", env={}) is False
-
-    profile = llm_wire.resolve_profile(
-        model="gpt-4",
-        endpoint="https://llm.example/v1",
-        env={"LLM_TRANSPORT": "invalid", "LLM_MAX_RETRIES": "bad", "LLM_TIMEOUT_SECONDS": "bad"},
-    )
-    assert profile.transport == "openai_compat"
-    assert profile.retry.max_attempts == 3
-    assert profile.retry.timeout_s == 60.0
-
-    native = llm_wire.resolve_profile(
-        model="claude-3",
-        env={"LLM_TRANSPORT": "auto", "LLM_MAX_RETRIES": "0", "LLM_TIMEOUT_SECONDS": "5"},
-    )
-    assert native.transport == "litellm"
-    assert native.retry.max_attempts == 1
-    assert native.retry.timeout_s == 5.0
-
-
-def test_llm_wire_litellm_kwargs_and_import(monkeypatch: pytest.MonkeyPatch) -> None:
-    profile = llm_wire.resolve_profile(model="gpt-5-mini", env={"LLM_PROVIDER": "openai"})
-    kwargs = llm_wire.build_litellm_kwargs(
-        profile,
-        [{"role": "user", "content": "hi"}],
-        max_tokens=9,
-        temperature=0.2,
-        api_key="key",
-        api_base="https://api.example/v1",
-        api_version="2024-01-01",
-    )
-
-    assert kwargs["model"] == "openai/gpt-5-mini"
-    assert kwargs["max_completion_tokens"] == 9
-    assert "temperature" not in kwargs
-    assert kwargs["api_key"] == "key"
-    assert kwargs["api_base"] == "https://api.example/v1"
-    assert kwargs["api_version"] == "2024-01-01"
-
-    class TelemetryBlocked:
-        def completion(self, **kwargs: object) -> dict[str, object]:
-            return {"choices": [{"message": {"content": "ok"}}]}
-
-        def __setattr__(self, name: str, value: object) -> None:
-            if name == "telemetry":
-                raise RuntimeError("blocked")
-            super().__setattr__(name, value)
-
-    fake_litellm = TelemetryBlocked()
-    monkeypatch.setitem(sys.modules, "litellm", fake_litellm)
-
-    assert llm_wire._import_litellm() is fake_litellm
-
-
-def test_llm_wire_compat_call_success_error_and_retry(monkeypatch: pytest.MonkeyPatch) -> None:
-    profile = llm_wire.resolve_profile(
-        model="gpt-4",
-        endpoint="https://llm.example/v1",
-        env={"LLM_MAX_RETRIES": "2", "LLM_TIMEOUT_SECONDS": "4"},
-    )
-    calls: list[dict[str, object]] = []
-
-    class Response:
-        def __init__(self, payload: object) -> None:
-            self.payload = payload
-
-        def raise_for_status(self) -> None:
-            calls.append({"raised": False})
-
-        def json(self) -> object:
-            return self.payload
-
-    def post(url: str, **kwargs: object) -> Response:
-        calls.append({"url": url, **kwargs})
-        return Response({"choices": [{"message": {"content": "generated"}}]})
-
-    import requests
-
-    monkeypatch.setattr(requests, "post", post)
-    payload = llm_wire._compat_call(
-        profile,
-        [{"role": "user", "content": "hi"}],
-        max_tokens=3,
-        temperature=0.1,
-        api_key="key",
-    )
-
-    assert llm_wire.extract_chat_text(payload) == "generated"
-    assert calls[0]["url"] == "https://llm.example/v1/chat/completions"
-    assert calls[0]["headers"]["Authorization"] == "Bearer key"
-    assert calls[0]["timeout"] == 4.0
-    assert calls[0]["json"]["temperature"] == 0.1
-
-    monkeypatch.setattr(requests, "post", lambda url, **kwargs: Response(["not", "dict"]))
-    with pytest.raises(llm_wire.LLMTransportError, match="non-object"):
-        llm_wire._compat_call(profile, [], max_tokens=None, temperature=None, api_key=None)
-
-    retry_attempts = {"count": 0}
-
-    def flaky_call(*args: object, **kwargs: object) -> dict[str, object]:
-        retry_attempts["count"] += 1
-        if retry_attempts["count"] == 1:
-            raise RuntimeError("temporary")
-        return {"choices": [{"text": "ok"}]}
-
-    monkeypatch.setattr(llm_wire, "_compat_call", flaky_call)
-    monkeypatch.setattr(llm_wire.time, "sleep", lambda seconds: None)
-
-    assert llm_wire.call(profile, [], max_tokens=None, temperature=None) == {
-        "choices": [{"text": "ok"}]
-    }
-    assert retry_attempts["count"] == 2
-
-    monkeypatch.setattr(
-        llm_wire,
-        "_compat_call",
-        lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("boom")),
-    )
-    with pytest.raises(llm_wire.LLMTransportError, match="LLM call failed"):
-        llm_wire.call(profile, [], max_tokens=None, temperature=None)
-
-
-def test_llm_wire_call_uses_litellm_dict_and_model_dump(monkeypatch: pytest.MonkeyPatch) -> None:
-    profile = llm_wire.resolve_profile(model="gpt-4", env={"LLM_PROVIDER": "openai"})
-
-    class DumpResponse:
-        def model_dump(self) -> dict[str, object]:
-            return {"choices": [{"text": "dumped"}]}
-
-    fake_litellm = SimpleNamespace(completion=lambda **kwargs: DumpResponse(), telemetry=True)
-    monkeypatch.setitem(sys.modules, "litellm", fake_litellm)
-    assert llm_wire.call(profile, [], max_tokens=1, temperature=0.0) == {
-        "choices": [{"text": "dumped"}]
-    }
-
-    fake_litellm.completion = lambda **kwargs: {"choices": [{"text": "dict"}]}
-    assert llm_wire.call(profile, [], max_tokens=1, temperature=0.0) == {
-        "choices": [{"text": "dict"}]
-    }
-
-
-@pytest.mark.asyncio
-async def test_llm_wire_acall_delegates_to_sync_call(monkeypatch: pytest.MonkeyPatch) -> None:
-    profile = llm_wire.resolve_profile(model="gpt-4", endpoint="https://llm.example/v1", env={})
-    monkeypatch.setattr(llm_wire, "call", lambda *args, **kwargs: {"choices": [{"text": "async"}]})
-
-    assert await llm_wire.acall(profile, [], max_tokens=1) == {"choices": [{"text": "async"}]}
-
-
-@pytest.mark.asyncio
-async def test_codegen_pipeline_llm_fallback_states(monkeypatch: pytest.MonkeyPatch) -> None:
-    class FallbackBackend(FakeBackend):
-        supports_disconnected_codegen = True
-
-        async def codegen(
-            self, prompt: str, *, session_id: str | None = None, context: dict | None = None
-        ):
-            raise BackendUnavailable("delegate to fallback")
-
-    pipeline = CodegenPipeline(store=ConversationStore())
-
-    monkeypatch.delenv("LLM_ENDPOINT", raising=False)
-    monkeypatch.delenv("LLM_PROVIDER", raising=False)
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    not_configured = await pipeline.generate(
-        backend=FallbackBackend(connected=False), prompt="make code"
-    )
-    assert not_configured.error_code == "llm_not_configured"
-
-    monkeypatch.setenv("LLM_ENDPOINT", "https://llm.example/v1")
-
-    async def failing_acall(*args: object, **kwargs: object) -> dict[str, object]:
-        raise llm_wire.LLMTransportError("network")
-
-    monkeypatch.setattr("ansys.cfx.mcp.common.codegen.acall", failing_acall)
-    failed = await pipeline.generate(backend=FallbackBackend(connected=False), prompt="make code")
-    assert failed.error_code == "llm_call_failed"
-
-    async def empty_acall(*args: object, **kwargs: object) -> dict[str, object]:
-        return {"choices": [{"message": {"content": "   "}}]}
-
-    monkeypatch.setattr("ansys.cfx.mcp.common.codegen.acall", empty_acall)
-    empty = await pipeline.generate(backend=FallbackBackend(connected=False), prompt="make code")
-    assert empty.error_code == "llm_empty_response"
-
-    async def ok_acall(*args: object, **kwargs: object) -> dict[str, object]:
-        return {"choices": [{"message": {"content": "print('ok')"}}]}
-
-    monkeypatch.setattr("ansys.cfx.mcp.common.codegen.acall", ok_acall)
-    generated = await pipeline.generate(
-        backend=FallbackBackend(connected=False), prompt="make code"
-    )
-    assert generated.status == "ok"
-    assert generated.code == "print('ok')"
 
 
 @pytest.mark.parametrize(
@@ -581,112 +282,6 @@ def test_safe_builtins_allow_safe_imports_only() -> None:
         safe_import("math", level=1)
 
 
-def test_conversation_store_lifecycle_and_eviction(monkeypatch: pytest.MonkeyPatch) -> None:
-    now = 100.0
-    monkeypatch.setattr(ConversationStore, "_now", staticmethod(lambda: now))
-    store = ConversationStore(ttl_seconds=10, max_entries=2)
-
-    first = store.create()
-    store.append_history(first.session_id, "user", "hello")
-    store.set_pending_clarification(first.session_id, {"id": "q1", "question": "Continue?"})
-    same = store.get_or_create(first.session_id)
-    store.touch(first.session_id)
-
-    assert same.session_id == first.session_id
-    assert store.get(first.session_id).history[0]["content"] == "hello"
-    assert store.has_pending_clarification_id(first.session_id, "q1") is True
-    assert store.has_pending_clarification_id("missing", "q1") is False
-    assert store.clarification_was_just_asked(first.session_id, " continue? ") is True
-    assert store.clarification_was_just_asked("missing", "continue?") is False
-    store.append_history("missing", "user", "ignored")
-    store.set_pending_clarification("missing", None)
-
-    now = 200.0
-    assert store.get(first.session_id) is None
-    assert store.get_or_create("expired").session_id != "expired"
-
-    now = 300.0
-    old = store.create()
-    now = 301.0
-    store.create()
-    now = 302.0
-    store.create()
-    assert store.get(old.session_id) is None
-
-
-@pytest.mark.asyncio
-async def test_codegen_pipeline_generate_records_history_and_session_id() -> None:
-    backend = FakeBackend(result=CodegenResult(status="ok", code="print('done')"))
-    store = ConversationStore()
-    pipeline = CodegenPipeline(store=store)
-
-    result = await pipeline.generate(backend=backend, prompt="make code", context={"a": 1})
-
-    assert result.session_id is not None
-    assert backend.codegen_calls == [
-        {"prompt": "make code", "session_id": result.session_id, "context": {"a": 1}}
-    ]
-    history = store.get(result.session_id).history
-    assert [entry["role"] for entry in history] == ["user", "assistant"]
-
-
-@pytest.mark.asyncio
-async def test_codegen_pipeline_validates_inputs_and_connection_state() -> None:
-    pipeline = CodegenPipeline(store=ConversationStore())
-
-    with pytest.raises(InvalidArguments):
-        await pipeline.generate(backend=FakeBackend(), prompt="   ")
-
-    with pytest.raises(NotConnected):
-        await pipeline.generate(backend=FakeBackend(connected=False), prompt="make code")
-
-    with pytest.raises(InvalidArguments):
-        await pipeline.clarify(
-            backend=FakeBackend(), session_id="missing", clarification_id="q", answer="yes"
-        )
-
-    entry = pipeline.store.create()
-    with pytest.raises(InvalidArguments):
-        await pipeline.clarify(
-            backend=FakeBackend(), session_id=entry.session_id, clarification_id="", answer="yes"
-        )
-    with pytest.raises(NotConnected):
-        await pipeline.clarify(
-            backend=FakeBackend(connected=False),
-            session_id=entry.session_id,
-            clarification_id="q",
-            answer="yes",
-        )
-
-
-@pytest.mark.asyncio
-async def test_codegen_pipeline_clarify_updates_pending_clarification() -> None:
-    clarification = {
-        "id": "q1",
-        "question": "Which file?",
-        "options": [{"label": "A", "value": "a"}],
-    }
-    backend = FakeBackend(
-        result=CodegenResult(status="needs_clarification", clarifications=[clarification])
-    )
-    store = ConversationStore()
-    pipeline = CodegenPipeline(store=store)
-    generated = await pipeline.generate(backend=backend, prompt="make code")
-
-    assert store.has_pending_clarification_id(generated.session_id, "q1") is True
-
-    backend.result = CodegenResult(status="ok", code="print('ok')")
-    clarified = await pipeline.clarify(
-        backend=backend,
-        session_id=generated.session_id,
-        clarification_id="q1",
-        answer="a",
-    )
-
-    assert clarified.session_id == generated.session_id
-    assert store.get(generated.session_id).pending_clarification is None
-
-
 @pytest.mark.asyncio
 async def test_backend_defaults_find_and_cache_behavior() -> None:
     backend = FakeBackend()
@@ -814,7 +409,7 @@ async def test_cfx_backend_workflow_branches_with_fake_sessions(
     assert (await backend.cfx_workflow(action="unknown"))["allowed_actions"]
 
 
-def test_cfx_backend_live_path_resolution_and_codegen_sanitizers(
+def test_cfx_backend_live_path_resolution_and_python_sanitizers(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     reset_session_manager()
@@ -840,7 +435,7 @@ def test_cfx_backend_live_path_resolution_and_codegen_sanitizers(
         'pre.setup.flow["Flow Analysis 1"].domain["Default Domain"].fluid_definition.Water.option = "Material Library"\n'  # noqa: E501
         'pre.setup.flow["Flow Analysis 1"].domain["Default Domain"].fluid_definition.Water.material = "Water"'  # noqa: E501
     )
-    sanitized = backend._sanitize_cfx_codegen_code(code, context={"fluid_name": "Water"})
+    sanitized = backend._sanitize_cfx_python_code(code, context={"fluid_name": "Water"})
     assert ".fluid_definition.Water" not in sanitized
     assert '.fluid_definition["Water"].material' in sanitized
 
@@ -856,14 +451,12 @@ def test_cfx_backend_live_path_resolution_and_codegen_sanitizers(
 
 @pytest.mark.asyncio
 async def test_cfx_mcp_tool_closures_call_backend_and_validate_inputs() -> None:
-    backend = FakeBackend(result=CodegenResult(status="ok", code="print('x')"))
+    backend = FakeBackend()
     leaf = CFXMCP(
         expose_tools=(
             "session_status",
             "connect",
             "disconnect",
-            "codegen",
-            "clarify",
             "list_named_objects",
             "find_named_object",
             "select_named_objects",

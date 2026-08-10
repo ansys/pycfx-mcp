@@ -67,11 +67,9 @@ After CFX connects, use this loop for most setup and analysis tasks:
 2. **Route**: Use ``cfx_workflow`` for supported lifecycle actions such as
    importing meshes, writing solver input, starting a solver, waiting for
    completion, and opening CFD-Post results.
-3. **Generate**: Use ``codegen`` only when you need custom PyCFX Python that is
-   not already covered by a routed workflow.
-4. **Validate**: Use ``validate_code`` to pre-check generated snippets against
+3. **Validate**: Use ``validate_code`` to pre-check reviewed snippets against
    the AST sandbox.
-5. **Execute**: Use ``run_code`` to run reviewed snippets against the active CFX
+4. **Execute**: Use ``run_code`` to run reviewed snippets against the active CFX
    backend.
 
 Use offline-capable tools
@@ -81,11 +79,7 @@ Use these tools before you connect to a live CFX app:
 
 - ``session_status``: Reports that no backend is connected and lists available
   tools.
-- ``codegen``: Returns deterministic recipe snippets for supported CFX tasks and
-  can use optional LLM fallback when configured.
 - ``validate_code``: Performs an AST pre-check without mutating a CFX session.
-- ``clarify``: Asks for missing information before a workflow or code generation
-  request proceeds.
 
 Consider example use cases
 --------------------------
@@ -93,7 +87,7 @@ Consider example use cases
 - Start CFX-Pre and import a mesh with AI guidance.
 - Write a solver input file and run a steady-state solver workflow.
 - Locate the generated results file and open it in CFD-Post.
-- Generate and validate small PyCFX snippets for custom inspection or edits.
+- Validate and run reviewed PyCFX snippets for custom inspection or edits.
 
 Next steps
 ----------

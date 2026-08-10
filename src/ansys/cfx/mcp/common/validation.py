@@ -92,7 +92,7 @@ def _cache_store(key: tuple, value: RunCodeResult) -> None:
         _VALIDATE_CACHE.popitem(last=False)
 
 
-# Patterns that almost always indicate the LLM hallucinated unsafe ops.
+# Patterns that almost always indicate unsafe or unsupported operations.
 _FORBIDDEN_CALLS: tuple[str, ...] = (
     "os.system",
     "subprocess.Popen",
@@ -526,10 +526,10 @@ def _count_nodes(tree: ast.AST) -> int:
 # ---------------------------------------------------------------------------
 
 # JavaScript / JSON-style tokens that are valid Python *names* but not the
-# correct Python constants.  The LLM-backed geometry codegen sometimes
-# emits ``true`` / ``false`` / ``null`` instead of ``True`` / ``False`` /
-# ``None``.  These are legal NAME tokens so ``ast.parse`` succeeds, but
-# the code crashes at runtime with ``NameError``.
+# correct Python constants.  External code authors sometimes emit ``true`` /
+# ``false`` / ``null`` instead of ``True`` / ``False`` / ``None``. These are
+# legal NAME tokens so ``ast.parse`` succeeds, but the code crashes at runtime
+# with ``NameError``.
 _JS_TO_PYTHON: dict[str, str] = {
     "true": "True",
     "false": "False",

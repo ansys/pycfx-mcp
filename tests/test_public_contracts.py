@@ -22,7 +22,7 @@ import pytest
 
 from ansys.cfx.mcp import CFXMCP
 from ansys.cfx.mcp.common.backend import Backend
-from ansys.cfx.mcp.common.models import Clarification, CodegenResult, ConnectResult, RunCodeResult
+from ansys.cfx.mcp.common.models import ConnectResult, RunCodeResult
 
 PUBLIC_TOOLS = (
     "session_status",
@@ -30,8 +30,6 @@ PUBLIC_TOOLS = (
     "disconnect",
     "cfx_workflow",
     "cfx_model_context",
-    "codegen",
-    "clarify",
     "run_code",
     "validate_code",
 )
@@ -54,18 +52,6 @@ class ContractBackend(Backend):
 
     async def disconnect(self) -> None:
         self.connected = False
-
-    async def codegen(
-        self, prompt: str, *, session_id: str | None = None, context: dict | None = None
-    ):
-        return CodegenResult(
-            status="needs_clarification",
-            clarifications=[Clarification(id="c1", question="Confirm behavior?")],
-            session_id=session_id,
-        )
-
-    async def clarify(self, session_id: str, clarification_id: str, answer: str):
-        return CodegenResult(status="ok", code=answer, session_id=session_id)
 
     async def run_code(self, code: str, **kwargs: Any) -> RunCodeResult:
         return RunCodeResult(status="ok", stdout="stable\n", return_value={"ran": code})
@@ -94,7 +80,7 @@ def test_public_mcp_surface_stays_compact_and_stable() -> None:
     assert set(leaf._exposed) == set(PUBLIC_TOOLS)
     assert {toolset["name"]: tuple(toolset["tools"]) for toolset in leaf.build_toolsets()} == {
         "connection": ("session_status", "connect", "disconnect"),
-        "code-generation": ("codegen", "clarify", "validate_code"),
+        "code-validation": ("validate_code",),
         "cfx-workflow": ("cfx_workflow",),
         "cfx-model-context": ("cfx_model_context",),
         "code-execution": ("run_code", "validate_code"),
@@ -126,23 +112,6 @@ async def test_public_mcp_tools_keep_response_contracts() -> None:
     assert (await _call_tool(leaf, "cfx_workflow", action="status"))["status"] == "ok"
     assert (await _call_tool(leaf, "cfx_model_context", action="summary"))["max_items"] == 20
 
-    codegen = await _call_tool(leaf, "codegen", prompt="keep existing behavior")
-    assert codegen.status == "needs_clarification"
-    assert codegen.session_id
-    assert codegen.clarifications[0].id == "c1"
-
-    clarify = await _call_tool(
-        leaf,
-        "clarify",
-        session_id=codegen.session_id,
-        clarification_id="c1",
-        answer="ok",
-    )
-    assert clarify.model_dump(include={"status", "code", "session_id"}) == {
-        "status": "ok",
-        "code": "ok",
-        "session_id": codegen.session_id,
-    }
     assert (await _call_tool(leaf, "validate_code", code="x = 1")).status == "ok"
     assert (await _call_tool(leaf, "run_code", code="x = 1")).stdout == "stable\n"
 

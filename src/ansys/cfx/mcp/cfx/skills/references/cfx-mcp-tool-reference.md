@@ -11,10 +11,8 @@ This reference is for the direct `CFXMCP` leaf. It is not the Setup Agent API.
 | `disconnect` | Close active CFX sessions managed by the backend. |
 | `cfx_workflow` | Route lifecycle and artifact operations through a small action enum. |
 | `cfx_model_context` | Route bounded model/API/context inspection through a small action enum. |
-| `codegen` | Generate PyCFX-oriented code for custom setup or inspection tasks. |
-| `clarify` | Ask for missing details when code generation or workflow inputs are ambiguous. |
 | `run_code` | Execute generated or user-approved Python against the CFX backend context. |
-| `validate_code` | Validate generated Python before execution. |
+| `validate_code` | Validate Python before execution. |
 
 ## `connect`
 
@@ -145,9 +143,9 @@ Examples:
 
 ## When to use code execution
 
-Use `codegen` and `validate_code` when the requested operation is a custom model edit or detailed inspection that cannot be represented by `cfx_workflow` or `cfx_model_context`.
+Use `validate_code` and `run_code` when the requested operation is a custom model edit or detailed inspection that cannot be represented by `cfx_workflow` or `cfx_model_context`.
 
-Good code generation tasks:
+Good explicit-code tasks:
 
 - Create or edit a CFX-Pre boundary condition after enough model context is known.
 - Inspect a small set of CFX objects using PyCFX APIs.

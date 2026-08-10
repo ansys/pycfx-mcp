@@ -15,19 +15,19 @@ the shared PyAnsys MCP foundation.
 
 This package is **self-contained** and works as a **standalone** server for any MCP host.
 It exposes a compact CFX-oriented tool surface so you can connect to CFX sessions,
-inspect bounded model context, generate small PyCFX snippets, validate
-code, and coordinate common solver and CFD-Post actions.
+inspect bounded model context, validate and run reviewed PyCFX snippets, and
+coordinate common solver and CFD-Post actions.
 
 For quick-start, configuration, architecture, examples, and per-tool reference
 material, see the [PyCFX-MCP documentation](https://cfx-mcp.docs.pyansys.com).
 
 ## Overview
 
-Ansys CFX-MCP is a **stateless** MCP leaf. Your LLM host, such as Visual Studio
-Code Copilot, Claude Desktop, Cursor, or a custom agent, calls a focused set of
-tools to drive live CFX-Pre, CFD-Post, and CFX Solver sessions. Custom Python
-runs through a validated, Python-level restricted execution path. This is not an
-operating-system or container sandbox.
+Ansys CFX-MCP is a **stateless** MCP leaf. MCP clients such as Visual Studio
+Code Copilot, Claude Desktop, Cursor, or a custom automation host call a focused
+set of tools to drive live CFX-Pre, CFD-Post, and CFX Solver sessions. Custom
+Python runs through a validated, Python-level restricted execution path. This is
+not an operating-system or container sandbox.
 
 Key features:
 
@@ -38,9 +38,6 @@ Key features:
 - **Bounded model context**: Inspect summaries, named objects, API help,
   allowed values, and selected state snippets without dumping entire models
   into an MCP client.
-- **Deterministic-first codegen**: Generate PyCFX-oriented snippets from
-  bundled CFX recipes first, with an optional server-side LLM fallback only
-  for unmatched `codegen` prompts.
 - **Validated execution**: Run custom snippets in a persistent PyCFX execution context
   with strict AST validation, guarded imports, and limited built-in functions.
 - **Flexible MCP transport**: Run over STDIO for local clients or Streamable
@@ -48,19 +45,18 @@ Key features:
 
 ## Tool surface
 
-The default MCP surface includes nine tools:
+The default MCP surface includes seven tools:
 
 | Group | Tools |
 |-------|-------|
 | Connection and session | `connect`, `disconnect`, and `session_status` |
 | CFX workflow routing | `cfx_workflow` |
 | Bounded model context | `cfx_model_context` |
-| Code generation and execution | `codegen`, `clarify`, `run_code`, and `validate_code` |
+| Code execution | `run_code` and `validate_code` |
 
 The server also exposes a `toolsets://definition` MCP resource for clients or
 conductors that group related tools. The default CFX toolsets cover connection
-management, CFX workflow routing, CFX model context, code generation, and code
-execution.
+management, CFX workflow routing, CFX model context, and code execution.
 
 ## Requirements
 
@@ -69,7 +65,6 @@ execution.
 | **Python 3.12** or later | Always | 3.12, 3.13 and 3.14 are supported |
 | **Core runtime dependencies** | Always (installed automatically) | `ansys-common-mcp`, `fastmcp`, `pydantic`, and `requests` |
 | **A licensed local Ansys CFX installation** | To launch or attach CFX tools | Required for workflows that use CFX-Pre, CFX Solver, or CFD-Post |
-| **Optional LLM fallback** | Only for unmatched `codegen` prompts | Native providers through the LiteLLM SDK with `ansys-cfx-mcp[providers]`, or any OpenAI-compatible chat completions endpoint such as a LiteLLM proxy |
 
 > **PyCFX and Ansys CFX are required for live-session tools.** Any tool that
 > touches a CFX app (`connect`, `run_code`, `cfx_workflow`,
@@ -117,14 +112,12 @@ Cursor, or another assistant host, to connect to PyCFX-MCP. For more information
 
 ## Configuration
 
-The default server needs no LLM configuration. The `codegen` path first applies
-guardrails and deterministic CFX recipes. If no recipe matches, only the
-`codegen` tool can fall through to the optional server-side LLM fallback.
-The `cfx_workflow`, `cfx_model_context`, `validate_code`, and `run_code` tools
-do not call an LLM.
+The standalone server does not call a language model. Configure only the server
+transport, logging, and backend options needed for your MCP client. Custom code
+authoring belongs in the MCP host or a higher-level agent layer; PyCFX-MCP
+validates and runs reviewed Python through `validate_code` and `run_code`.
 
-To enable the optional model- and provider-agnostic LLM fallback or tune TLS and
-transport settings, see
+For transport settings, see
 [Configuration](https://cfx-mcp.docs.pyansys.com/version/stable/user_guide/configuration.html) in the PyCFX-MCP documentation.
 
 ## License

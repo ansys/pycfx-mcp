@@ -19,10 +19,6 @@ You can use these tools from the default MCP surface:
      - Coordinate lifecycle actions such as CFX-Pre, CFX-solver, and CFD-Post workflows.
    * - ``cfx_model_context``
      - Retrieve bounded model context, API help, named objects, and state snippets.
-   * - ``codegen``
-     - Generate CFX workflow code snippets. This tool uses deterministic recipes first and can optionally use a server-side LLM fallback.
-   * - ``clarify``
-     - Ask for missing details before generating or running a workflow.
    * - ``run_code``
      - Run validated Python code in the configured backend.
    * - ``validate_code``
@@ -40,36 +36,17 @@ Use the tools in this order for most workflows:
    a selected state.
 #. Run ``cfx_workflow`` for lifecycle operations such as importing meshes,
    writing solver input, running the solver, and opening results.
-#. Use ``codegen`` and ``validate_code`` only when your task requires custom
-   PyCFX code.
+#. Use ``validate_code`` only when your task requires custom PyCFX code.
 #. Run ``run_code`` only after validation and user approval in your MCP
    client.
 
-Optional language model fallback
---------------------------------
+Language-model ownership
+------------------------
 
-Server-side LLM access is optional and is used only by ``codegen``. When a
-``codegen`` prompt does not match a deterministic CFX recipe, the tool can use
-the native LiteLLM SDK transport or a direct OpenAI-compatible chat completions
-endpoint. Install ``ansys-cfx-mcp[providers]`` to enable native provider calls
-through LiteLLM. For direct endpoint HTTP, ``LLM_ENDPOINT`` can be a full
-``/chat/completions`` URL or a base URL such as a LiteLLM proxy's
-``http://localhost:4000/v1``.
-
-.. code-block:: powershell
-
-  $env:LLM_ENDPOINT = "http://localhost:4000/v1"
-  $env:LLM_API_KEY = "<token>"
-  $env:LLM_MODEL = "gpt-4o-mini"
-
-``LLM_TRANSPORT`` defaults to ``auto``. When ``LLM_ENDPOINT`` is set, ``auto``
-uses direct endpoint HTTP. Otherwise, provider keys such as ``OPENAI_API_KEY``,
-``ANTHROPIC_API_KEY``, ``GEMINI_API_KEY``, or ``AZURE_API_KEY`` enable the
-native LiteLLM transport. Set ``LLM_AUTH_STYLE=azure-api-key`` for Azure OpenAI
-endpoints that require an ``api-key`` header.
-
-``cfx_workflow``, ``cfx_model_context``, ``validate_code``, and ``run_code`` do
-not call a server-side LLM.
+PyCFX-MCP is a deterministic leaf server and does not call a server-side
+language model. Custom code authoring belongs in the MCP host or a higher-level
+agent layer. This server validates and executes reviewed Python through
+``validate_code`` and ``run_code``.
 
 Common workflow actions
 -----------------------

@@ -24,7 +24,6 @@ from ansys.cfx.mcp.cfx.recipes import (
     match_recipes,
     recipes_prompt_block,
 )
-from ansys.cfx.mcp.common.codegen import CodegenPipeline
 
 
 # -- recipe library --------------------------------------------------------
@@ -91,22 +90,6 @@ def test_recipes_prompt_block_contains_minimal_directive() -> None:
     assert "MINIMAL" in block
     assert "create_outlet" in block
     assert 'boundary["outlet"] = {}' in block
-
-
-# -- pipeline integration --------------------------------------------------
-def test_compose_system_prompt_injects_outlet_recipe() -> None:
-    prompt = CodegenPipeline._compose_system_prompt("create outlet")
-    assert "create_outlet" in prompt
-    assert 'boundary_type = "OUTLET"' in prompt
-    # Base instruction about minimal output is preserved.
-    assert "MINIMAL" in prompt
-
-
-def test_compose_system_prompt_no_recipe_falls_back_to_base() -> None:
-    prompt = CodegenPipeline._compose_system_prompt("export mesh to parasolid")
-    # No recipe matched -> just the base prompt, no recipe headers.
-    assert "### Recipe:" not in prompt
-    assert "PyCFX" in prompt
 
 
 def test_recipe_render_includes_optional_and_notes() -> None:
