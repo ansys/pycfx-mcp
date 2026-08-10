@@ -80,7 +80,7 @@ def test_public_mcp_surface_stays_compact_and_stable() -> None:
     assert set(leaf._exposed) == set(PUBLIC_TOOLS)
     assert {toolset["name"]: tuple(toolset["tools"]) for toolset in leaf.build_toolsets()} == {
         "connection": ("session_status", "connect", "disconnect"),
-        "code-generation": ("validate_code",),
+        "code-validation": ("validate_code",),
         "cfx-workflow": ("cfx_workflow",),
         "cfx-model-context": ("cfx_model_context",),
         "code-execution": ("run_code", "validate_code"),
