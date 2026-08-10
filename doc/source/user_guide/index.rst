@@ -23,7 +23,7 @@ Learn how to use PyCFX-MCP effectively.
       :link: configuration
       :link-type: doc
 
-      Configure environment variables, LLM settings, transport options, and security controls.
+      Configure environment variables, transport options, and security controls.
 
    .. grid-item-card:: :fa:`check-double` Best practices
       :link: best_practices

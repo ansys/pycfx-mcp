@@ -27,7 +27,6 @@ from ansys.cfx.mcp.cfx.sessions.session_manager import SessionManager
 from ansys.cfx.mcp.common.backend import Backend
 from ansys.cfx.mcp.common.base import FluidsLeafMCP
 from ansys.cfx.mcp.common.errors import BackendUnavailable
-from ansys.cfx.mcp.common.llm_wire import resolve_tls_verify
 
 
 class _ConnectedBackend(CFXBackend):
@@ -52,8 +51,6 @@ def test_cfx_mcp_exposes_compact_tool_surface() -> None:
         "disconnect",
         "cfx_workflow",
         "cfx_model_context",
-        "codegen",
-        "clarify",
         "run_code",
         "validate_code",
     }
@@ -82,7 +79,7 @@ def test_cfx_mcp_toolsets_include_exposed_cfx_tools_only() -> None:
     toolset_tools = set().union(*(toolset["tools"] for toolset in toolsets))
 
     assert tools_by_toolset["connection"] == {"session_status", "connect", "disconnect"}
-    assert tools_by_toolset["code-generation"] == {"codegen", "clarify", "validate_code"}
+    assert tools_by_toolset["code-validation"] == {"validate_code"}
     assert tools_by_toolset["cfx-workflow"] == {"cfx_workflow"}
     assert tools_by_toolset["cfx-model-context"] == {"cfx_model_context"}
     assert tools_by_toolset["code-execution"] == {"run_code", "validate_code"}
@@ -102,25 +99,6 @@ def test_cfx_mcp_run_code_description_is_cfx_specific() -> None:
     assert "PyCFX" in description_source
     assert "cfx_model_context" in description_source
     assert "solver.settings" not in description_source
-
-
-def test_resolve_tls_verify_defaults_to_enabled() -> None:
-    assert resolve_tls_verify({}) is True
-
-
-def test_resolve_tls_verify_uses_ca_bundle() -> None:
-    assert resolve_tls_verify({"LLM_CA_BUNDLE": "C:/certs/corp.pem"}) == "C:/certs/corp.pem"
-    assert resolve_tls_verify({"SSL_CERT_FILE": "C:/certs/ssl.pem"}) == "C:/certs/ssl.pem"
-    assert (
-        resolve_tls_verify({"REQUESTS_CA_BUNDLE": "C:/certs/requests.pem"})
-        == "C:/certs/requests.pem"
-    )
-
-
-def test_resolve_tls_verify_allows_explicit_insecure_override() -> None:
-    assert (
-        resolve_tls_verify({"LLM_TLS_INSECURE": "1", "LLM_CA_BUNDLE": "C:/certs/corp.pem"}) is False
-    )
 
 
 @pytest.mark.asyncio
@@ -228,12 +206,6 @@ async def test_run_code_blocks_restricted_builtins_at_runtime() -> None:
     assert result.status == "error"
     assert result.error_code == "forbidden_name"
     assert "__builtins__" in (result.message or "")
-
-
-@pytest.mark.asyncio
-async def test_codegen_is_owned_by_external_agent_layer() -> None:
-    with pytest.raises(BackendUnavailable, match="external CFX agent"):
-        await CFXBackend().codegen("Generate a custom PyCFX utility snippet.")
 
 
 def test_collect_domains_and_boundaries_walks_nested_flow_state() -> None:

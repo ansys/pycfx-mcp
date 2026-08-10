@@ -18,10 +18,10 @@
 
 These recipes are distilled from the `examples <https://cfx.docs.pyansys.com/version/stable/examples/index.html>`_
 in PyCFX documentation and act as the authoritative pattern library for
-code generation. Anchoring the LLM to these snippets keeps generated code
-idiomatic (correct creation idiom and real attribute names) and *minimal*.
-When a user asks to "create an outlet," the model emits only the required
-lines and does not invent extra boundary-condition values that were never requested.
+custom Python authoring. Anchoring callers to these snippets keeps code idiomatic
+(correct creation idiom and real attribute names) and *minimal*. When a user asks
+to "create an outlet," the author should emit only the required lines and avoid
+extra boundary-condition values that were never requested.
 
 """
 

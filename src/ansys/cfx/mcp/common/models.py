@@ -16,7 +16,7 @@
 
 """Typed contracts shared by PyCFX-MCP.
 
-These are the response shapes that LLM clients see. Keeping them small,
+These are the response shapes that MCP clients see. Keeping them small,
 JSON-friendly, and stable is what makes orchestration reliable.
 """
 
@@ -53,7 +53,7 @@ class SessionStatus(BaseModel):
 
 
 class ConnectionTarget(BaseModel):
-    """Minimal connection descriptor surfaced to the LLM/UI for selection."""
+    """Minimal connection descriptor surfaced to clients for selection."""
 
     id: str
     label: str
@@ -69,41 +69,6 @@ class ConnectResult(BaseModel):
     backend_kind: Optional[str] = None
     endpoint: Optional[str] = None
     candidates: list[ConnectionTarget] = Field(default_factory=list)
-    message: Optional[str] = None
-    error_code: Optional[str] = None
-
-
-# ---------------------------------------------------------------------------
-# Codegen / clarify
-# ---------------------------------------------------------------------------
-
-
-class ClarificationOption(BaseModel):
-    """One selectable answer for a clarification question."""
-
-    label: str
-    value: str
-    description: Optional[str] = None
-
-
-class Clarification(BaseModel):
-    """Question returned when code generation needs more information."""
-
-    id: str
-    question: str
-    options: list[ClarificationOption] = Field(default_factory=list)
-    free_text_allowed: bool = True
-
-
-class CodegenResult(BaseModel):
-    """Result of a CFX codegen call."""
-
-    status: Literal["ok", "needs_clarification", "error"]
-    code: Optional[str] = None
-    language: str = "python"
-    clarifications: list[Clarification] = Field(default_factory=list)
-    warnings: list[str] = Field(default_factory=list)
-    session_id: Optional[str] = None
     message: Optional[str] = None
     error_code: Optional[str] = None
 

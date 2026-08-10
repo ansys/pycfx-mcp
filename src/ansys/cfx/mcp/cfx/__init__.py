@@ -61,8 +61,6 @@ class CFXMCP(FluidsLeafMCP):
                 "disconnect",
                 "cfx_workflow",
                 "cfx_model_context",
-                "codegen",
-                "clarify",
                 "run_code",
                 "validate_code",
             ),
@@ -98,8 +96,8 @@ class CFXMCP(FluidsLeafMCP):
             description=(
                 "Run one focused CFX lifecycle or artifact action. Actions: "
                 "start_pre, import_mesh, write_def, start_solver, wait_solver, "
-                "get_results_file, open_post, status. Use codegen for custom "
-                "model setup edits."
+                "get_results_file, open_post, status. Use the external agent "
+                "layer for custom PyCFX code generation."
             ),
         )
         @typed_guard

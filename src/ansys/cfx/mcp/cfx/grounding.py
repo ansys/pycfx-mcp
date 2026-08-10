@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Schema grounding for CFX code generation.
+"""Schema grounding for CFX Python.
 
-This pass validates the attribute chains that appear in LLM-generated PyCFX
-snippets against :class:`~ansys.cfx.mcp.cfx.schema_cache.CFXSchemaCache` and
-snaps unknown attribute leaves to the nearest valid name.
+This pass validates the attribute chains that appear in PyCFX snippets against
+:class:`~ansys.cfx.mcp.cfx.schema_cache.CFXSchemaCache` and snaps unknown
+attribute leaves to the nearest valid name.
 """
 
 from __future__ import annotations

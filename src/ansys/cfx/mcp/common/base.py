@@ -22,9 +22,8 @@ A leaf:
 - Inherits from `PyAnsysBaseMCP` so it can be registered alongside other
   PyAnsys MCP servers at the organization level.
 - Auto-registers the requested tool surface from `ALL_TOOLS`, including
-    `session_status`, `connect`, `disconnect`, `codegen`, `clarify`,
-    model-context helpers, `run_code`, `validate_code`, and optional
-    lifecycle/reporting tools.
+    `session_status`, `connect`, `disconnect`, model-context helpers,
+    `run_code`, `validate_code`, and optional lifecycle/reporting tools.
 
 Concrete leaves only have to declare which tools to *expose* as a subset of
 the preceding list, keeping the MCP surface lean per leaf.
@@ -39,8 +38,6 @@ from typing import Any, Awaitable, Callable, Iterable, Optional
 from ansys.common.mcp.server import PyAnsysBaseMCP
 
 from ansys.cfx.mcp.common.backend import Backend
-from ansys.cfx.mcp.common.codegen import CodegenPipeline
-from ansys.cfx.mcp.common.conversation import ConversationStore
 from ansys.cfx.mcp.common.errors import (
     BackendUnavailable,
     InvalidArguments,
@@ -57,8 +54,6 @@ ALL_TOOLS = (
     "session_status",
     "connect",
     "disconnect",
-    "codegen",
-    "clarify",
     "error_remediation",
     "list_named_objects",
     "find_named_object",
@@ -88,7 +83,7 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
         Parameters
         ----------
         transport : str, optional
-            LLM transport implementation to use. Default is ``'stdio'``.
+            MCP transport implementation to use. Default is ``'stdio'``.
         host : str | None, optional
             Host interface for the MCP transport. Default is ``None``.
         port : int | None, optional
@@ -122,7 +117,7 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
     #: for example ``"cfx"`` for the CFX leaf.
     component_label: str = ""
 
-    #: Description surfaced to the LLM for the ``error_remediation`` tool.
+    #: Description surfaced to clients for the ``error_remediation`` tool.
     #: Leaves should override with a domain-specific description so the
     #: tool is reliably picked up by tool-discovery / function-calling.
     error_remediation_description: str = (
@@ -139,8 +134,6 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
         backends: dict[str, Backend],
         expose_tools: Iterable[str] = ALL_TOOLS,
         hide_connection_tools: bool = False,
-        conversation_store: Optional[ConversationStore] = None,
-        codegen_pipeline: Optional[CodegenPipeline] = None,
         name: Optional[str] = None,
         **fastmcp_kwargs: Any,
     ) -> None:
@@ -155,11 +148,6 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
         hide_connection_tools : bool, optional
             Whether connection-management tools should be omitted from registration. Default is
             ``False``.
-        conversation_store : Optional[ConversationStore], optional
-            Store used to track code-generation conversations. Default is ``None``.
-        codegen_pipeline : Optional[CodegenPipeline], optional
-            Pipeline responsible for code generation and clarification handling. Default is
-            ``None``.
         name : Optional[str], optional
             Name of the object, resource, or field to process. Default is ``None``.
         fastmcp_kwargs : Any
@@ -186,12 +174,6 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
             requested_tools.discard("connect")
             requested_tools.discard("disconnect")
         self._exposed = requested_tools
-        self._store = conversation_store or ConversationStore()
-        self._pipeline = codegen_pipeline or CodegenPipeline(store=self._store)
-        # Inject product identity so the codegen pipeline builds the right
-        # product prompt.
-        if hasattr(self._pipeline, "product_label"):
-            self._pipeline.product_label = self.leaf_name
 
         if self.default_backend_kind and self.default_backend_kind in backends:
             self._active_kind = self.default_backend_kind
@@ -282,10 +264,6 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
             self._tool_connect()
         if "disconnect" in self._exposed:
             self._tool_disconnect()
-        if "codegen" in self._exposed:
-            self._tool_codegen()
-        if "clarify" in self._exposed:
-            self._tool_clarify()
         if "error_remediation" in self._exposed:
             self._tool_error_remediation()
         if "list_named_objects" in self._exposed:
@@ -365,18 +343,10 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
             ),
             "tools": ["session_status", "connect", "disconnect"],
         },
-        "code-generation": {
-            "description": ("Tools for CFX code generation, clarification, and validation."),
-            "skill": (
-                "Use codegen only for custom PyCFX snippets after checking "
-                "whether cfx_workflow or cfx_model_context already covers "
-                "the request. codegen uses deterministic CFX recipes first "
-                "and may use the optional server-side LLM fallback when "
-                "configured. If the backend asks a follow-up question, "
-                "respond with clarify. Use validate_code for dry-run checks "
-                "before execution."
-            ),
-            "tools": ["codegen", "clarify", "validate_code"],
+        "code-validation": {
+            "description": ("Tools for validating PyCFX snippets before execution."),
+            "skill": "Use validate_code for dry-run checks before execution.",
+            "tools": ["validate_code"],
         },
         "cfx-workflow": {
             "description": ("Tools for routed CFX lifecycle actions."),
@@ -643,98 +613,6 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
             await backend.disconnect()
             self._active_kind = None
             return {"status": "ok"}
-
-    # ---- codegen / clarify -------------------------------------------
-
-    def _tool_codegen(self) -> None:
-        """Register the ``codegen`` MCP tool for natural-language code generation.
-
-        Returns
-        -------
-        None
-            No value is returned; the tool is added to the FastMCP server.
-        """
-
-        @self.tool(
-            name="codegen",
-            description=(
-                f"Generate Python code for the {self.leaf_name} stage from a "
-                "natural-language prompt. Returns either `status='ok'` with "
-                "`code`, or `status='needs_clarification'` with one or more "
-                "`clarifications` to answer via the `clarify` tool. Pass the "
-                "returned `session_id` back on follow-up calls to keep context."
-            ),
-        )
-        @typed_guard
-        async def codegen(
-            prompt: str, session_id: Optional[str] = None, context: Optional[dict[str, Any]] = None
-        ):
-            """Generate CFX Python code or request clarification for a prompt.
-
-            Parameters
-            ----------
-            prompt : str
-                Natural-language user request to process.
-            session_id : Optional[str], optional
-                Conversation identifier used to retrieve or continue context. Default is ``None``.
-            context : Optional[dict[str, Any]], optional
-                Optional model, file, or session context supplied by the caller.
-
-            Returns
-            -------
-            Any
-                Code-generation result containing generated code, clarifications,
-                validation feedback, or an error payload.
-            """
-            return await self._pipeline.generate(
-                backend=self.backend,
-                prompt=prompt,
-                session_id=session_id,
-                context=context,
-            )
-
-    def _tool_clarify(self) -> None:
-        """Register the ``clarify`` MCP tool for answering codegen questions.
-
-        Returns
-        -------
-        None
-            No value is returned; the tool is added to the FastMCP server.
-        """
-
-        @self.tool(
-            name="clarify",
-            description=(
-                "Provide an answer to a clarification raised by `codegen`. "
-                "`session_id` and `clarification_id` come from the previous "
-                "`codegen` (or `clarify`) response."
-            ),
-        )
-        @typed_guard
-        async def clarify(session_id: str, clarification_id: str, answer: str):
-            """Continue code generation after the user answers a clarification.
-
-            Parameters
-            ----------
-            session_id : str
-                Conversation identifier used to retrieve or continue context.
-            clarification_id : str
-                Identifier of the clarification being answered or checked.
-            answer : str
-                User answer to the requested clarification.
-
-            Returns
-            -------
-            Any
-                Updated code-generation result, which may contain generated code,
-                additional clarification requests, or an error payload.
-            """
-            return await self._pipeline.clarify(
-                backend=self.backend,
-                session_id=session_id,
-                clarification_id=clarification_id,
-                answer=answer,
-            )
 
     def _tool_error_remediation(self) -> None:
         """Register the ``error_remediation`` MCP tool for recovery guidance.
@@ -1315,13 +1193,13 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
         @self.tool(
             name="validate_code",
             description=(
-                "Dry-run / validate the generated code without applying side "
-                "effects. Returns parse / type / semantic feedback for the LLM."
+                "Dry-run / validate CFX Python without applying side effects. "
+                "Returns parse / type / semantic feedback."
             ),
         )
         @typed_guard
         async def validate_code(code: str):
-            """Validate generated CFX Python without applying model changes.
+            """Validate CFX Python without applying model changes.
 
             Parameters
             ----------

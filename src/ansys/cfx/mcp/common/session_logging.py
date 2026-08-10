@@ -23,8 +23,8 @@ higher-level layer that shares the process can add its own root via
 :func:`register_log_root` so a single ``session.log`` captures the whole
 stack — this package never names or imports that layer. All child
 loggers propagate up to the handler, so tool calls, plan executions,
-run_code snippets, LLM round-trips, and validator decisions are all
-captured in one place without touching individual call sites.
+run_code snippets, and validator decisions are all captured in one place
+without touching individual call sites.
 
 Goals
 -----
@@ -56,15 +56,14 @@ Each session creates ``<base>/<session_id>/`` containing:
     ``ansys.cfx.mcp.*`` module (plus any extra roots registered via
     :func:`register_log_root`) through Python's logging.
 * ``env.txt`` — snapshot of process env vars relevant to the server
-    (``FLUIDS_*``, ``ANSYS_*``, ``AWP_ROOT*``, ``AALI_*``, ``LLM_*``)
-    plus Python/OS versions.
+    (``FLUIDS_*``, ``ANSYS_*``, ``AWP_ROOT*``, ``AALI_*``) plus Python/OS
+    versions.
 * ``meta.json`` — small JSON file with session id, start time, log
     base, gateway host/port (if known).
 
-The :class:`agent.loop.run_log.RunLogger` continues to write
-per-conversation JSONL files under ``<state_dir>/runs/`` exactly as
-before — the new session folder is for *cross-cutting* diagnostics,
-not per-conversation event streams.
+Any embedding host may continue to write its own request-level logs separately;
+the new session folder is for *cross-cutting* diagnostics, not host-level event
+streams.
 """
 
 from __future__ import annotations
@@ -429,7 +428,7 @@ def _gather_env_snapshot() -> str:
     str
         String result produced by the function.
     """
-    keep_prefixes = ("FLUIDS_", "ANSYS", "AWP_ROOT", "AALI_", "LLM_")
+    keep_prefixes = ("FLUIDS_", "ANSYS", "AWP_ROOT", "AALI_")
     redact_keys = ("API_KEY", "TOKEN", "SECRET", "PASSWORD")
     lines: list[str] = []
     lines.append(f"# Captured: {datetime.now(timezone.utc).isoformat()}")

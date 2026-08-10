@@ -18,13 +18,6 @@ Use pip for the simplest installation:
 
    pip install ansys-cfx-mcp
 
-To enable native multi-provider LLM transport for optional ``codegen`` fallback
-calls, install the ``providers`` extra:
-
-.. code-block:: bash
-
-   pip install "ansys-cfx-mcp[providers]"
-
 Install PyCFX-MCP from source
 -----------------------------
 

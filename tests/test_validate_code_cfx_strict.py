@@ -104,7 +104,7 @@ def test_validate_code_blocks_hallucinated_path():
 
 def test_validate_code_keeps_near_miss_as_warning():
     """A path whose leaf has a near-match should remain a warning,
-    not an error — the LLM may have made a simple typo."""
+    not an error because the author may have made a simple typo."""
     backend = CFXBackend()
     code = "x = solver.setup.flow['main'].domain['fluid'].solver_control.convergence_control.timescale_facter\n"  # noqa: E501
     result = _run(backend.validate_code(code))

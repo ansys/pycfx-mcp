@@ -17,8 +17,8 @@
 """Backend abstraction.
 
 Every leaf has one or more backends. A backend is the thing that actually
-talks to a supported fluids product or service. Tools are LLM-facing. Backends are
-implementation-facing.
+talks to a supported fluids product or service. MCP tools are the public wire
+surface; backends are implementation-facing.
 
 A backend implements only the operations its product supports. Unsupported
 operations raise `BackendUnavailable` so the typed-error guard converts them
@@ -34,7 +34,6 @@ from typing import Any, Optional
 
 from ansys.cfx.mcp.common.errors import BackendUnavailable
 from ansys.cfx.mcp.common.models import (
-    CodegenResult,
     ConnectResult,
     RemediationResult,
     RunCodeResult,
@@ -49,7 +48,7 @@ class Backend(ABC):
     Default implementations raise a `BackendUnavailable` error.
     """
 
-    #: Short identifier surfaced to the LLM (for example, "pycfx").
+    #: Short identifier surfaced to MCP clients (for example, "pycfx").
     kind: str = "unknown"
     #: Human-readable name surfaced in `session.status`.
     label: str = "Unknown backend"
@@ -125,52 +124,6 @@ class Backend(ABC):
             backend_kind=self.kind,  # type: ignore[arg-type]
             endpoint=getattr(self, "endpoint", None),
         )
-
-    # ---- codegen ------------------------------------------------------
-
-    async def codegen(
-        self,
-        prompt: str,
-        *,
-        session_id: Optional[str] = None,
-        context: Optional[dict[str, Any]] = None,
-    ) -> CodegenResult:
-        """Generate CFX Python code or return a clarification request.
-
-        Parameters
-        ----------
-        prompt : str
-            Natural-language user request to process.
-        session_id : Optional[str], default: None
-            Conversation identifier to use to retrieve or continue context.
-        context : Optional[dict[str, Any]], default: None
-            Additional context supplied by the caller.
-
-        Returns
-        -------
-        CodegenResult
-            Generated-code response or clarification request.
-        """
-        raise BackendUnavailable(f"{self.label} does not support codegen.")
-
-    async def clarify(self, session_id: str, clarification_id: str, answer: str) -> CodegenResult:
-        """Continue code generation after a clarification answer.
-
-        Parameters
-        ----------
-        session_id : str
-            Conversation identifier used to retrieve or continue context.
-        clarification_id : str
-            Identifier of the clarification being answered or checked.
-        answer : str
-            User answer to the clarification prompt.
-
-        Returns
-        -------
-        CodegenResult
-            Generated-code response or clarification request.
-        """
-        raise BackendUnavailable(f"{self.label} does not support clarify.")
 
     # ---- remediation --------------------------------------------------
 

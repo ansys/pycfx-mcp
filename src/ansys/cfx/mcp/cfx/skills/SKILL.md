@@ -1,6 +1,6 @@
 ---
 name: cfx-mcp-tools
-description: 'Use when: operating the standalone ansys-cfx-mcp CFX MCP leaf directly from generic agents such as Claude, GitHub Copilot, Codex, or MCP clients. Covers CFX-Pre, Solver, CFD-Post, cfx_workflow, cfx_model_context, codegen, run_code, validate_code, lifecycle actions, model context, named objects, API help, and result-file discovery.'
+description: 'Use when: operating the standalone ansys-cfx-mcp CFX MCP leaf directly from generic clients or MCP hosts. Covers CFX-Pre, Solver, CFD-Post, cfx_workflow, cfx_model_context, run_code, validate_code, lifecycle actions, model context, named objects, API help, and result-file discovery.'
 argument-hint: 'Describe the CFX task and available MCP tools'
 ---
 
@@ -17,8 +17,6 @@ Expect these tools by default:
 - `disconnect`
 - `cfx_workflow`
 - `cfx_model_context`
-- `codegen`
-- `clarify`
 - `run_code`
 - `validate_code`
 
@@ -32,7 +30,7 @@ For exact action names and parameter shapes, load [tool reference](./references/
 2. Use `connect` or `cfx_workflow(action="start_pre")` to start or attach to CFX-Pre when setup/model work is needed. Prefer an explicit `connect` `mode` (`"launch"` to start locally, `"attach"` to join a running server) so intent is unambiguous. `mode="auto"` (the default) infers it from the parameters.
 3. Use `cfx_model_context` for bounded model inspection. Request one slice at a time, such as a summary, named-object lookup, API help entry, or targeted context.
 4. Use `cfx_workflow` for lifecycle and artifact steps: import mesh, write `.def`, start solver, wait for solver, get `.res`, or open CFD-Post.
-5. Use `codegen` and `validate_code` for custom CFX setup edits that are not covered by the routed workflow actions.
+5. Use `validate_code` for explicit CFX Python snippets that are not covered by the routed workflow actions.
 6. Use `run_code` only for safe, intentional inspection or edits requested by the user. Prefer read-only inspection first.
 7. Call `disconnect` when the user asks to close the session or when cleaning up a dedicated run.
 
@@ -46,7 +44,7 @@ Keep context calls narrow. `cfx_model_context` accepts `max_items`. Use small va
 - Do not use paths or assumptions from other products for CFX.
 - Do not treat `cfx_workflow` as a free-form macro executor. It only accepts supported lifecycle/artifact actions.
 - For solver launch requests, prefer `cfx_workflow(action="start_solver")`, then `cfx_workflow(action="wait_solver")`, then `cfx_workflow(action="get_results_file")`.
-- For custom setup changes, generate explicit PyCFX-oriented code, validate it, and then run it only after the user intent is clear.
+- For custom setup changes, validate explicit PyCFX-oriented code, and then run it only after the user intent is clear.
 
 ## Common recipes
 
