@@ -13,6 +13,73 @@ Added
 
 .. towncrier release notes start
 
+`0.2.0 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.2.0>`_ - August 17, 2026
+===================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update \`\`CONTRIBUTORS.md\`\` with the latest contributors
+          - `#10 <https://github.com/ansys/pycfx-mcp/pull/10>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump the actions group with 16 updates
+          - `#11 <https://github.com/ansys/pycfx-mcp/pull/11>`_
+
+        * - Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.22 to 0.16.0 in the pre-commit group
+          - `#12 <https://github.com/ansys/pycfx-mcp/pull/12>`_
+
+        * - Bump litellm from 1.93.0 to 1.94.0 in the pip-deps group
+          - `#13 <https://github.com/ansys/pycfx-mcp/pull/13>`_
+
+        * - Bump the actions group with 2 updates
+          - `#14 <https://github.com/ansys/pycfx-mcp/pull/14>`_
+
+        * - Bump the pre-commit group with 2 updates
+          - `#17 <https://github.com/ansys/pycfx-mcp/pull/17>`_
+
+        * - Bump the pip-deps group with 3 updates
+          - `#18 <https://github.com/ansys/pycfx-mcp/pull/18>`_
+
+        * - Bump the actions group with 15 updates
+          - `#19 <https://github.com/ansys/pycfx-mcp/pull/19>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.1.1
+          - `#8 <https://github.com/ansys/pycfx-mcp/pull/8>`_
+
+        * - Update missing or outdated files
+          - `#15 <https://github.com/ansys/pycfx-mcp/pull/15>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Remove server-side LLM codegen support
+          - `#16 <https://github.com/ansys/pycfx-mcp/pull/16>`_
+
+
 `0.1.1 <https://github.com/ansys/pycfx-mcp/releases/tag/v0.1.1>`_ - July 31, 2026
 =================================================================================
 
