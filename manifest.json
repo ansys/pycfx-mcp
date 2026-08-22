@@ -1,0 +1,23 @@
+{
+  "id": "ansys-cfx-mcp",
+  "name": "Ansys CFX Connector",
+  "version": "1.0.0",
+  "manifest_schema_version": 1,
+  "package_format_version": 1,
+  "platform": {
+    "os": "any",
+    "arch": "x64"
+  },
+  "runtime": "python",
+  "entry": "cli.py",
+  "min_app_version": "0.4.0",
+  "entitlement_tier": "pro",
+  "port_env_var": "MCP_PORT",
+  "token_env_var": "MCP_LICENSE_TOKEN",
+  "stdio": true,
+  "platform_requirements": {
+    "python": ["Python >= 3.10", "ansys-common-mcp (PyAnsysBaseMCP runtime)", "PyCFX sessions (bundled)"],
+    "windows": ["Ansys CFX installed (CFX-Pre, Solver, CFD-Post) for live sessions"],
+    "linux": ["PyCFX backend only (no GUI-dependent operations)"]
+  }
+}
