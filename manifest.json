@@ -16,8 +16,38 @@
   "token_env_var": "MCP_LICENSE_TOKEN",
   "stdio": true,
   "platform_requirements": {
-    "python": ["Python >= 3.10", "ansys-common-mcp (PyAnsysBaseMCP runtime)", "PyCFX sessions (bundled)"],
-    "windows": ["Ansys CFX installed (CFX-Pre, Solver, CFD-Post) for live sessions"],
-    "linux": ["PyCFX backend only (no GUI-dependent operations)"]
+    "python": [
+      "Python >= 3.10",
+      "ansys-common-mcp (PyAnsysBaseMCP runtime)",
+      "PyCFX sessions (bundled)"
+    ],
+    "windows": [
+      "Ansys CFX installed (CFX-Pre, Solver, CFD-Post) for live sessions"
+    ],
+    "linux": [
+      "PyCFX backend only (no GUI-dependent operations)"
+    ]
+  },
+  "config": {
+    "env": [
+      {
+        "key": "ANSYS_MCP_HOST",
+        "label": "Ansys bridge host",
+        "kind": "host",
+        "secret": false,
+        "required": false,
+        "default": "127.0.0.1",
+        "description": "Host running Ansys bridge."
+      },
+      {
+        "key": "ANSYS_MCP_PORT",
+        "label": "Ansys bridge port",
+        "kind": "host",
+        "secret": false,
+        "required": false,
+        "default": "48152",
+        "description": "TCP port exposed by Ansys bridge."
+      }
+    ]
   }
 }
