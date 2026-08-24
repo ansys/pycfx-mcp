@@ -9,7 +9,7 @@
     "arch": "x64"
   },
   "runtime": "python",
-  "entry": "cli.py",
+  "entry": "run_server.py",
   "min_app_version": "0.4.0",
   "entitlement_tier": "pro",
   "port_env_var": "MCP_PORT",
