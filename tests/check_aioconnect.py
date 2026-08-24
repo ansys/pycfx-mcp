@@ -1,8 +1,15 @@
 """Adapter unit validation — runs WITHOUT mcp/PyCFX/CFX (python3.11).
 Validates the AiConnect adapter layer (license gate + envelope wrap) that the
-real server calls from run_server.py / cli.py __main__.
+real server calls from run_server.py.
+
+Exercises the actual exported API of ansys.cfx.mcp.aioconnect: ensure_licensed,
+install_envelope_middleware, _wrap_result. This connector's server (CFXMCP ->
+PyAnsysBaseMCP -> fastmcp.server.server.FastMCP, the third-party `fastmcp`
+package) only supports the middleware interception boundary, not the
+mcp.server.fastmcp call-interceptor boundary that SAP2000/abaqus/qgis use —
+there is no install_call_interceptor or wrap_tools here, and there never
+should be; adding them would test symbols this connector doesn't have.
 """
-import asyncio
 import base64
 import hashlib
 import hmac
@@ -10,15 +17,19 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 
-FORK = "/project/pycfx-mcp"
-sys.path.insert(0, FORK)
+FORK = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(FORK / "src"))
 
-# AiConnect SDK is external (not vendored — IP boundary). Dev default points
-# at the aiconnector monorepo; override with AICONNECT_SDK_PATH.
-os.environ.setdefault("AICONNECT_SDK_PATH", os.environ.get("AICONNECT_SDK_PATH", "/project/aiconnector/connectors/sdk/python"))
+# AiConnect SDK is external (not vendored — IP boundary). Repo-relative
+# fallback for local/dev runs; override with AICONNECT_SDK_PATH.
+os.environ.setdefault(
+    "AICONNECT_SDK_PATH",
+    os.environ.get("AICONNECT_SDK_PATH") or str(FORK.parent / "connector-sdk" / "python"),
+)
 
-from ansys.cfx.mcp.aioconnect import ensure_licensed, install_call_interceptor, wrap_tools  # noqa: E402
+from ansys.cfx.mcp.aioconnect import ensure_licensed, install_envelope_middleware, _wrap_result  # noqa: E402
 from mcp_license_sdk import LicenseError  # noqa: E402
 
 SECRET = "0123456789abcdef0123456789abcdef"
@@ -43,12 +54,21 @@ def check(name, cond):
     print(("PASS" if cond else "FAIL"), name)
 
 
+class FakeFastMCP:
+    """Duck-types the one method install_envelope_middleware needs:
+    hasattr(mcp, "add_middleware") -> True, and a real add_middleware(mw)."""
+    def __init__(self):
+        self.middleware = None
+    def add_middleware(self, mw):
+        self.middleware = mw
+
+
 # 1. disabled (AICONNECT_ENABLE unset) → everything is a no-op
 os.environ.pop("AICONNECT_ENABLE", None)
 os.environ.pop("MCP_LICENSE_TOKEN", None)
 ensure_licensed()  # must NOT raise
 check("disabled: ensure_licensed no-op without env", True)
-check("disabled: wrap_tools wraps 0", wrap_tools(object()) == 0)
+check("disabled: install_envelope_middleware no-op", install_envelope_middleware(FakeFastMCP()) is False)
 
 # 2. enabled + missing token → refuse at startup
 os.environ["AICONNECT_ENABLE"] = "1"
@@ -71,12 +91,12 @@ except LicenseError:
     check("enabled: wrong subject refuses", True)
 os.environ["MCP_LICENSE_TOKEN"] = mint(["ansys-cfx-mcp"])
 
-# 4. SYNC tool wrapping: envelope on success, fail envelope on exception
-def sync_ok():
-    return '{"ok": true}'
-wrapped_sync = wrap_tools(object())
-# Test envelope via internal _wrap_result
-from ansys.cfx.mcp.aioconnect import _wrap_result  # noqa: E402
+# 4. envelope middleware installs when enabled, and wraps a real object
+fake = FakeFastMCP()
+check("enabled: install_envelope_middleware installs", install_envelope_middleware(fake) is True)
+check("enabled: middleware actually registered", fake.middleware is not None)
+
+# 5. envelope: JSON → ok(data); non-JSON → fail; empty → ok
 env = json.loads(_wrap_result('{"a":1}'))
 check("envelope: JSON → ok(data)", env.get("success") is True and env.get("data", {}).get("a") == 1)
 env = json.loads(_wrap_result("raw boom"))
