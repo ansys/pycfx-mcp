@@ -58,7 +58,12 @@ def _wrap_result(r):
             try:
                 return json.dumps(ok(json.loads(text)))
             except json.JSONDecodeError:
-                return json.dumps(fail("TOOL_ERROR", "non-JSON tool output"))
+                # _wrap_result only ever runs on a value already accepted as a
+                # successful tool result - there is no "malformed" case here.
+                # A bare str-returning tool's text is the raw string itself,
+                # never JSON-encoded, so treating a JSONDecodeError as failure
+                # silently broke every plain-string tool. Wrap it as data.
+                return json.dumps(ok(text))
         return json.dumps(ok({"result": ""}))
     return json.dumps(ok(r))
 
