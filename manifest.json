@@ -1,7 +1,7 @@
 {
   "id": "ansys-cfx-mcp",
   "name": "Ansys CFX Connector",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "manifest_schema_version": 1,
   "package_format_version": 1,
   "platform": {
@@ -49,5 +49,120 @@
         "description": "TCP port exposed by Ansys bridge."
       }
     ]
-  }
+  },
+  "tools": [
+    {
+      "name": "connect_cfx",
+      "description": "Launch or connect to CFX-Pre session",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "launch",
+              "connect"
+            ]
+          },
+          "case_file": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_setup",
+      "description": "Read full CFX settings tree",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "set_setup",
+      "description": "Modify any CFX setting",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "save_case",
+      "description": "Save .cfx case file",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "start_solve",
+      "description": "Launch CFX-Solver + start run",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_solve_status",
+      "description": "Check solver run state",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "stop_solve",
+      "description": "Stop solver run",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_results",
+      "description": "Load CFD-Post results + query",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "disconnect_cfx",
+      "description": "Exit CFX session",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_version",
+      "description": "Query CFX engine version",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_cfx_api_categories",
+      "description": "Browse CCL hierarchy categories",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "search_cfx_api",
+      "description": "Search CCL parameters by keyword",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "query_cfx_registry",
+      "description": "Look up parameter path + type + description",
+      "inputSchema": {
+        "type": "object"
+      }
+    }
+  ]
 }
