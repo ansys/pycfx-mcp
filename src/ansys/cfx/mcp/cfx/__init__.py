@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Awaitable, Callable, Iterable, Optional, cast
+from typing import Any, Awaitable, Callable, Iterable, Literal, Optional, cast
 
 from ansys.cfx.mcp.cfx.backend import CFXBackend
 from ansys.cfx.mcp.common.backend import Backend
@@ -63,6 +63,9 @@ class CFXMCP(FluidsLeafMCP):
                 "cfx_model_context",
                 "run_code",
                 "validate_code",
+                "find_api",
+                "get_help",
+                "error_remediation",
             ),
             **fastmcp_kwargs,
         )
@@ -102,7 +105,16 @@ class CFXMCP(FluidsLeafMCP):
         )
         @typed_guard
         async def cfx_workflow(
-            action: str,
+            action: Literal[
+                "start_pre",
+                "import_mesh",
+                "write_def",
+                "start_solver",
+                "wait_solver",
+                "get_results_file",
+                "open_post",
+                "status",
+            ],
             params: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
             """Run a focused CFX lifecycle or artifact action.
@@ -148,7 +160,17 @@ class CFXMCP(FluidsLeafMCP):
         )
         @typed_guard
         async def cfx_model_context(
-            action: str = "summary",
+            action: Literal[
+                "summary",
+                "list_named_objects",
+                "find_named_object",
+                "select_named_objects",
+                "state",
+                "api_help",
+                "find_api",
+                "allowed_values",
+                "targeted_context",
+            ] = "summary",
             params: dict[str, Any] | None = None,
             max_items: int = 20,
         ) -> dict[str, Any]:
