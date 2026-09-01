@@ -139,15 +139,14 @@ jobs:
           pytest-markers: '-m "not integration"'
           group-dependencies-name: tests
 
-      # TODO: this will be enabled once public
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
-      #   if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
-      #   with:
-      #     file: ./coverage.xml
-      #     flags: unittests
-      #     name: codecov-umbrella
-      #     fail_ci_if_error: false
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
   integration:
     name: "Integration tests (live CFX)"
