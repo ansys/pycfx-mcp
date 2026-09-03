@@ -1,0 +1,156 @@
+
+
+
+
+
+
+The ``validation.py`` module
+============================
+
+.. py:module:: ansys.cfx.mcp.common.validation
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+.. py:currentmodule:: validation
+.. tab-set::
+
+
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~validate_python_source`
+            - Validate Python source code before it is executed in a CFX session.
+
+
+          * - :py:obj:`~sanitize_python_code`
+            - Replace common non-Python literal tokens in generated Python code.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Static code validation shared across backends.
+
+Phase 2: AST parse + a few cheap heuristics. Backends with a live solver
+session can layer real semantic checks on top by extending `validate_code`
+in their own implementation.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: validate_python_source(code: str, *, forbidden_calls: Iterable[str] = _FORBIDDEN_CALLS, strict: bool = False, extra_allowed_names: Iterable[str] = ()) -> ansys.cfx.mcp.common.models.RunCodeResult
+
+   
+   Validate Python source code before it is executed in a CFX session.
+
+
+   :Parameters:
+
+       **code** : :class:`python:str`
+           Python source code submitted for validation, grounding, or execution.
+
+       **forbidden_calls** : :obj:`Iterable`\[:class:`python:str`], :obj:`optional`
+           Dotted call names that must be rejected by the validator. Default is
+           ``_FORBIDDEN_CALLS``.
+
+       **strict** : :ref:`bool <python:bltin-boolean-values>`, :obj:`optional`
+           Whether to enforce import and name allow-lists in addition to syntax checks. Default is
+           ``False``.
+
+       **extra_allowed_names** : :obj:`Iterable`\[:class:`python:str`], :obj:`optional`
+           Additional top-level names allowed when strict validation is enabled. Default is ``()``.
+
+
+
+   :Returns:
+
+       :obj:`RunCodeResult`
+           Validation result describing whether the submitted Python source is acceptable.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: sanitize_python_code(code: str) -> tuple[str, list[str]]
+
+   
+   Replace common non-Python literal tokens in generated Python code.
+
+
+   :Parameters:
+
+       **code** : :class:`python:str`
+           Python source code submitted for validation, grounding, or execution.
+
+
+
+   :Returns:
+
+       :class:`python:tuple`\[:class:`python:str`, :class:`python:list`\[:class:`python:str`]]
+           Sanitized code and a list of textual fixes that were applied.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+

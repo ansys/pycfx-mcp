@@ -1,0 +1,80 @@
+
+
+
+
+
+
+The ``session_manager.py`` module
+=================================
+
+.. py:module:: ansys.cfx.mcp.cfx.sessions.session_manager
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: session_manager
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.sessions.session_manager.SessionManager`
+            - Track active CFX sessions and artifacts for the backend namespace.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> SessionManager</api/ansys/cfx/mcp/cfx/sessions/session_manager/SessionManager>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Process-local manager for active PyCFX sessions.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+

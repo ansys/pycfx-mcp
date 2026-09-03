@@ -1,0 +1,183 @@
+
+
+
+
+
+
+The ``base.py`` module
+======================
+
+.. py:module:: ansys.cfx.mcp.common.base
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: base
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.base.FluidsLeafMCP`
+            - Base server class for a single shared MCP leaf.
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~select_named_objects_from_mapping`
+            - Filter named CFX objects from a mapping using include and exclude rules.
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~BackendUnavailable`
+            - 
+
+
+          * - :py:obj:`~NotConnected`
+            - 
+
+
+
+    .. tab-item:: Constants
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ALL_TOOLS`
+            - 
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> FluidsLeafMCP</api/ansys/cfx/mcp/common/base/FluidsLeafMCP>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Base MCP server for the CFX MCP leaf.
+
+A leaf:
+
+- Picks one or more `Backend` instances at construction time.
+- Inherits from `PyAnsysBaseMCP` so it can be registered alongside other
+  PyAnsys MCP servers at the organization level.
+- Auto-registers the requested tool surface from `ALL_TOOLS`, including
+    `session_status`, `connect`, `disconnect`, model-context helpers,
+    `run_code`, `validate_code`, and optional lifecycle/reporting tools.
+
+Concrete leaves only have to declare which tools to *expose* as a subset of
+the preceding list, keeping the MCP surface lean per leaf.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: select_named_objects_from_mapping(named: dict[str, list[str]], *, collection: str, pattern: str = '*', include_shadows: bool = True, exclude: Optional[list[str]] = None) -> dict[str, Any]
+
+   
+   Filter named CFX objects from a mapping using include and exclude rules.
+
+
+   :Parameters:
+
+       **named** : :class:`python:dict`\[:class:`python:str`, :class:`python:list`\[:class:`python:str`]]
+           Mapping of named objects grouped by collection.
+
+       **collection** : :class:`python:str`
+           Named-object collection to inspect.
+
+       **pattern** : :class:`python:str`, :obj:`optional`
+           Name or wildcard pattern used to select objects. Default is ``'*'``.
+
+       **include_shadows** : :ref:`bool <python:bltin-boolean-values>`, :obj:`optional`
+           Whether shadowed names should be included in object-selection results. Default is
+           ``True``.
+
+       **exclude** : :obj:`Optional`\[:class:`python:list`\[:class:`python:str`]], :obj:`optional`
+           Names or patterns to omit from object-selection results. Default is ``None``.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:data:: ALL_TOOLS
+   :value: ('session_status', 'connect', 'disconnect', 'error_remediation', 'list_named_objects',...
+
+
+
+
+
+

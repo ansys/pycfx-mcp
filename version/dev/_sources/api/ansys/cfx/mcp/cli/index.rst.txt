@@ -1,0 +1,107 @@
+
+
+
+
+
+
+The ``cli.py`` module
+=====================
+
+.. py:module:: ansys.cfx.mcp.cli
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+.. py:currentmodule:: cli
+.. tab-set::
+
+
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~run_cfx`
+            - Run the PyCFX-MCP command-line entry point.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Console entry point for standalone PyCFX-MCP.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: run_cfx(argv: Optional[list[str]] = None) -> None
+
+   
+   Run the PyCFX-MCP command-line entry point.
+
+
+   :Parameters:
+
+       **argv** : :obj:`Optional`\[:class:`python:list`\[:class:`python:str`]], default: :data:`python:None`
+           Command-line arguments passed to the CLI entry point.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
