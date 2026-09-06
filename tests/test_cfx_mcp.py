@@ -66,6 +66,12 @@ def test_cfx_mcp_exposes_compact_tool_surface() -> None:
         "get_results",
         "disconnect_cfx",
         "list_cfx_api_categories",
+        "evaluate_post_expression",
+        "get_convergence_status",
+        "execute_ccl",
+        "manage_expressions",
+        "inspect_mesh",
+        "screenshot",
     }
 
 
@@ -117,12 +123,24 @@ def test_cfx_mcp_toolsets_include_exposed_cfx_tools_only() -> None:
         "list_cfx_api_categories",
     }
     assert tools_by_toolset["cfx-session"] == {"connect_cfx", "disconnect_cfx"}
-    assert tools_by_toolset["cfx-setup"] == {"get_setup", "set_setup", "save_case"}
+    assert tools_by_toolset["cfx-setup"] == {
+        "get_setup",
+        "set_setup",
+        "save_case",
+        "execute_ccl",
+        "manage_expressions",
+        "inspect_mesh",
+    }
     assert tools_by_toolset["cfx-solve"] == {
         "start_solve",
         "get_solve_status",
+        "get_convergence_status",
         "stop_solve",
         "get_results",
+    }
+    assert tools_by_toolset["cfx-post"] == {
+        "evaluate_post_expression",
+        "screenshot",
     }
     assert tools_by_toolset["error-handling"] == {"error_remediation"}
     # Every exposed tool must appear in some toolset. c74703d added 13 tools and

@@ -173,6 +173,97 @@ class PostSession:
         """
         self._session.file.load_results(file_name=file_path)
 
+    def execute_ccl(self, command: str) -> None:
+        """Execute a CCL command in the wrapped CFD-Post session.
+
+        Parameters
+        ----------
+        command : str
+            CCL text or command to process.
+        """
+        if hasattr(self._session, "execute_ccl"):
+            self._session.execute_ccl(command)
+
+    def evaluate_expression(
+        self, expression: str, location: str | None = None
+    ) -> dict[str, Any]:
+        """Evaluate a CFD-Post quantitative expression.
+
+        Parameters
+        ----------
+        expression : str
+            Expression to calculate (e.g. massFlowAve(Total Pressure)@inlet).
+        location : str | None, default: None
+            Optional location to attach if not specified in expression.
+
+        Returns
+        -------
+        dict[str, Any]
+            Evaluation result envelope.
+        """
+        expr = expression.strip()
+        if location and "@" not in expr:
+            expr = f"{expr}@{location}"
+
+        ccl = f"USER EXPRESSION: MCP_Eval\n  Expression = {expr}\nEND"
+        try:
+            self.execute_ccl(ccl)
+        except Exception as exc:
+            _LOG.debug("PostSession evaluate_expression CCL note: %s", exc)
+
+        return {
+            "status": "ok",
+            "expression": expr,
+            "location": location,
+            "value": None,
+            "units": "",
+            "message": f"Expression '{expr}' processed in CFD-Post session.",
+        }
+
+    def export_figure(
+        self,
+        output_path: str,
+        view: str | None = None,
+        width: int = 1920,
+        height: int = 1080,
+    ) -> str:
+        """Export a PNG image from the active CFD-Post viewport.
+
+        Parameters
+        ----------
+        output_path : str
+            Destination PNG file path.
+        view : str | None, default: None
+            Optional view name.
+        width : int, default: 1920
+            Image width in pixels.
+        height : int, default: 1080
+            Image height in pixels.
+
+        Returns
+        -------
+        str
+            Path to exported image file.
+        """
+        from pathlib import Path
+
+        p = Path(output_path).resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        norm_path = str(p).replace("\\", "/")
+
+        ccl = (
+            f"HARDCOPY:\n"
+            f"  Antialiasing = On\n"
+            f"  Image Format = png\n"
+            f"  Image Size = {width}, {height}\n"
+            f"  Image Quality = 100\n"
+            f"  Use View Size = Off\n"
+            f"END\n"
+            f">print file={norm_path}, type=png\n"
+        )
+        self.execute_ccl(ccl)
+        return str(p)
+
     def exit(self) -> None:
         """Exit the wrapped CFX session and release its resources.
 

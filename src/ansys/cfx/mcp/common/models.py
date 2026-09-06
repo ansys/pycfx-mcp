@@ -50,6 +50,11 @@ class SessionStatus(BaseModel):
     endpoint: Optional[str] = None
     capabilities: list[CapabilityInfo] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    pre_connected: bool = False
+    solver_connected: bool = False
+    post_connected: bool = False
+    active_case: Optional[str] = None
+    results_file: Optional[str] = None
 
 
 class ConnectionTarget(BaseModel):

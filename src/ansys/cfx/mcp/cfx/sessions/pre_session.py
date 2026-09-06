@@ -266,6 +266,17 @@ class PreSession:
         """
         self._session.file.write_solver_input(file_name=file_path)
 
+    def execute_ccl(self, command: str) -> None:
+        """Execute a CCL command in the wrapped CFX-Pre session.
+
+        Parameters
+        ----------
+        command : str
+            CCL text or command to process.
+        """
+        if hasattr(self._session, "execute_ccl"):
+            self._session.execute_ccl(command)
+
     def exit(self) -> None:
         """Exit the wrapped CFX session and release its resources.
 

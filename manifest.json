@@ -1,7 +1,7 @@
 {
   "id": "ansys-cfx-mcp",
   "name": "Ansys CFX Connector",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "manifest_schema_version": 1,
   "package_format_version": 1,
   "platform": {
@@ -23,12 +23,21 @@
       "validate_code",
       "get_setup",
       "set_setup",
+      "start_solve",
       "get_solve_status",
+      "get_convergence_status",
       "stop_solve",
+      "get_results",
+      "evaluate_post_expression",
+      "execute_ccl",
+      "manage_expressions",
+      "inspect_mesh",
+      "screenshot",
       "find_api",
       "get_help"
     ],
-    "relevance_floor": 5.5
+    "relevance_floor": 5.5,
+    "aliases_file": "src/ansys/cfx/mcp/aiconnect_aliases.json"
   },
   "tool_index": {
     "exec_tool": "run_code",
@@ -39,6 +48,10 @@
     "include": [
       "run_server.py",
       "src",
+      "manifest.json",
+      "marketplace.json",
+      "TUTORIAL.md",
+      "assets",
       "scripts",
       "LICENSE"
     ],
@@ -127,14 +140,27 @@
     },
     {
       "name": "start_solve",
-      "description": "Launch CFX-Solver + start run",
+      "description": "Launch CFX-Solver with parallel partitions, double precision, and restart support",
       "inputSchema": {
         "type": "object",
         "properties": {
-          "wait": {
+          "def_file": {
+            "type": "string"
+          },
+          "partitions": {
+            "type": "integer"
+          },
+          "parallel_mode": {
+            "type": "string"
+          },
+          "double_precision": {
             "type": "boolean"
+          },
+          "initial_file": {
+            "type": "string"
           }
-        }
+        },
+        "required": ["def_file"]
       }
     },
     {
@@ -196,6 +222,96 @@
       "description": "Look up parameter path + type + description",
       "inputSchema": {
         "type": "object"
+      }
+    },
+    {
+      "name": "get_convergence_status",
+      "description": "Parse live CFX-Solver residuals and domain conservation imbalances",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "max_history": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "name": "evaluate_post_expression",
+      "description": "Evaluate quantitative CEL expressions in CFX-Post (massFlowAve, areaAve, force, etc.)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "expression": {
+            "type": "string"
+          }
+        },
+        "required": ["expression"]
+      }
+    },
+    {
+      "name": "execute_ccl",
+      "description": "Inject multiline CCL blocks directly into CFX-Pre, Solver, or Post",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ccl": {
+            "type": "string"
+          },
+          "session_type": {
+            "type": "string",
+            "enum": ["auto", "pre", "solver", "post"]
+          }
+        },
+        "required": ["ccl"]
+      }
+    },
+    {
+      "name": "manage_expressions",
+      "description": "List, get, set, or delete CEL expressions with unit validation",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["list", "get", "set", "delete"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "session_type": {
+            "type": "string",
+            "enum": ["auto", "pre", "post"]
+          }
+        }
+      }
+    },
+    {
+      "name": "inspect_mesh",
+      "description": "Inspect mesh topology, element counts, bounding box, and domains",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "screenshot",
+      "description": "Capture visual viewport, contour, or vector plot to base64 PNG",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "output_file": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer"
+          },
+          "height": {
+            "type": "integer"
+          }
+        }
       }
     }
   ]

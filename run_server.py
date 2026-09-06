@@ -17,18 +17,20 @@ _ROOT = Path(__file__).resolve().parent
 # all, so `from ansys.cfx.mcp import CFXMCP` below only resolved when the project had
 # been `pip install`ed. The gateway does not install anything: it spawns
 # `python run_server.py` in the unpacked package directory, where `src/` is not on the
-# path. Every other AiConnect connector's entry script does this; this one was missed.
-_SRC = _ROOT / "src"
-if _SRC.is_dir():
-    sys.path.insert(0, str(_SRC))
-
-# Vendored dependencies (`stage-python-vendor.py`), shipped inside the package.
-# AI CONNECT bundles the INTERPRETER; the connector brings its own LIBRARIES.
-# Appended rather than inserted, so a populated dev virtualenv and the host-injected
-# `mcp_license_sdk` both keep priority — `_vendor/` is the floor, not an override.
+# 1. Bootstrap vendored libraries and source directory
 _VENDOR = _ROOT / "_vendor"
 if _VENDOR.is_dir():
-    sys.path.append(str(_VENDOR))
+    import site
+
+    site.addsitedir(str(_VENDOR))
+    if str(_VENDOR) not in sys.path:
+        sys.path.insert(0, str(_VENDOR))
+
+_SRC = _ROOT / "src"
+if _SRC.is_dir():
+    if str(_SRC) in sys.path:
+        sys.path.remove(str(_SRC))
+    sys.path.insert(0, str(_SRC))
 
 from ansys.cfx.mcp import CFXMCP  # noqa: E402
 
@@ -48,4 +50,14 @@ if __name__ == "__main__":
     except ImportError:
         pass  # adapter absent -> plain upstream server
 
-    server.run(transport="stdio")
+    import os
+
+    transport = os.environ.get("MCP_TRANSPORT", "stdio").lower()
+    port_env = os.environ.get("MCP_PORT") or os.environ.get("PORT")
+    host = os.environ.get("MCP_HOST", "127.0.0.1")
+
+    if transport in ("http", "sse"):
+        port = int(port_env) if port_env else 8000
+        server.run(transport="http", host=host, port=port)
+    else:
+        server.run(transport="stdio")

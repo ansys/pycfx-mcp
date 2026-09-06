@@ -183,11 +183,35 @@
    ]
   },
   {
+   "name": "evaluate_post_expression",
+   "aliases": [
+    "evaluate expression in cfx post",
+    "calculate mass flow or area average",
+    "compute force torque or pressure drop"
+   ]
+  },
+  {
+   "name": "execute_ccl",
+   "aliases": [
+    "inject ccl command block",
+    "run raw cfx command language",
+    "modify cfx setup with multiline ccl"
+   ]
+  },
+  {
    "name": "find_api",
    "aliases": [
     "locate the pycfx path for a setting",
     "which api path implements this action",
     "ranked candidate api paths"
+   ]
+  },
+  {
+   "name": "get_convergence_status",
+   "aliases": [
+    "check solver iteration residuals",
+    "monitor cfx convergence and imbalances",
+    "read out file residual history"
    ]
   },
   {
@@ -220,10 +244,26 @@
    ]
   },
   {
+   "name": "inspect_mesh",
+   "aliases": [
+    "inspect mesh elements and topology",
+    "check mesh bounding box and domains",
+    "verify mesh node and element counts"
+   ]
+  },
+  {
    "name": "list_cfx_api_categories",
    "aliases": [
     "browse cfx api categories",
     "pre solver and post api areas"
+   ]
+  },
+  {
+   "name": "manage_expressions",
+   "aliases": [
+    "manage cel expressions",
+    "create or evaluate expression formula",
+    "list cfx expressions and units"
    ]
   },
   {
@@ -238,6 +278,14 @@
    "aliases": [
     "save the cfx pre case",
     "write a cfx file to disk"
+   ]
+  },
+  {
+   "name": "screenshot",
+   "aliases": [
+    "capture viewport screenshot or contour plot",
+    "export cfx image to base64 png",
+    "render visual scene in pre or post"
    ]
   },
   {
@@ -261,7 +309,7 @@
    "aliases": [
     "run the cfx solver",
     "begin the simulation from a def file",
-    "submit the solve"
+    "submit the solve in parallel or double precision"
    ]
   },
   {

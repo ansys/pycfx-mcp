@@ -19,19 +19,28 @@
 from __future__ import annotations
 
 import ast
+import base64
 from io import StringIO
 import logging
 import os
+from pathlib import Path
 import re
 import sys
+import tempfile
 from typing import Any, cast
 
 from ansys.cfx.mcp.cfx.dependencies import (
     check_cfx_prerequisites,
 )
+from ansys.cfx.mcp.cfx.recipes import match_recipes, recipes_prompt_block
 from ansys.cfx.mcp.cfx.sessions.session_manager import SessionManager
 from ansys.cfx.mcp.common.backend import Backend
-from ansys.cfx.mcp.common.models import ConnectResult, RunCodeResult, SessionStatus
+from ansys.cfx.mcp.common.models import (
+    ConnectResult,
+    RemediationResult,
+    RunCodeResult,
+    SessionStatus,
+)
 from ansys.cfx.mcp.common.validation import (
     _ALLOWED_BUILTINS,
     _ALLOWED_IMPORTS,
@@ -550,8 +559,13 @@ class CFXBackend(Backend):
                 error_code="connect_failed",
             )
 
-        ip = kwargs.get("ip")
+        ip = kwargs.get("ip") or os.environ.get("ANSYS_MCP_HOST")
         port = kwargs.get("port")
+        if port is None and os.environ.get("ANSYS_MCP_PORT"):
+            try:
+                port = int(os.environ["ANSYS_MCP_PORT"])
+            except ValueError:
+                pass
         password = kwargs.get("password")
         server_info_file = kwargs.get("server_info_file") or kwargs.get("pre_sinfo")
         launcher = kwargs.get("launcher", "from_install")
@@ -703,7 +717,67 @@ class CFXBackend(Backend):
             backend=self.label,
             backend_kind=self.kind,
             notes=notes,
+            pre_connected=bool(mgr.get("pre")),
+            solver_connected=bool(mgr.get("solver")),
+            post_connected=bool(mgr.get("post")),
+            active_case=mgr.get("solver_input_file"),
+            results_file=mgr.get("results_file"),
         )
+
+    async def error_remediation(
+        self,
+        remediation_request: str,
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> RemediationResult:
+        """Return recovery guidance and canonical PyCFX patterns for a failed operation.
+
+        Parameters
+        ----------
+        remediation_request : str
+            Error text, failing code, or diagnostic request to explain and remediate.
+        context : dict[str, Any] | None, default: None
+            Optional backend status, validation result, or MCP tool context.
+
+        Returns
+        -------
+        RemediationResult
+            Structured remediation advice and canonical code patterns.
+        """
+        recipes = match_recipes(remediation_request, limit=3)
+        recipe_block = recipes_prompt_block(recipes)
+
+        sections: list[str] = [
+            "### PyCFX Remediation & Diagnostic Guidance",
+            f"**Query / Error Analyzed**: {remediation_request.strip()}",
+        ]
+
+        if recipe_block:
+            sections.append(f"#### Canonical Patterns\n{recipe_block}")
+        else:
+            sections.append(
+                "#### Common CFX Troubleshooting Steps\n"
+                "- **CCL Bracketed Units**: Ensure all dimensional quantities use bracketed units "
+                "(e.g., `10 [m s^-1]`, `101325 [Pa]`, `25 [C]`, `1.2 [kg m^-3]`).\n"
+                "- **Precondition Check**: Ensure CFX-Pre is connected (`connect_cfx`) before reading or modifying setup.\n"
+                "- **Hierarchical Path**: Confirm domain and boundary names using `cfx_workflow(action='inspect_tree')` "
+                "or `get_setup` before setting properties.\n"
+                "- **Sandboxed Code**: In `run_code`, use bound handles `pre`, `solver`, `post`, `session`. "
+                "Restricted to safe math/data packages; no arbitrary subprocess or network access."
+            )
+
+        if context:
+            ctx_summary = ", ".join(f"{k}={v}" for k, v in context.items() if v is not None)
+            if ctx_summary:
+                sections.append(f"**Context**: `{ctx_summary}`")
+
+        markdown_body = "\n\n".join(sections)
+        return RemediationResult(
+            status="ok",
+            markdown=markdown_body,
+            message="Remediation guidance generated successfully.",
+        )
+
 
     async def find_api(
         self,
@@ -1149,13 +1223,33 @@ class CFXBackend(Backend):
         except Exception as exc:
             return {"status": "error", "path": path, "message": str(exc)}
 
-    async def start_solve(self, *, def_file: str, **kwargs: Any) -> dict[str, Any]:
+    async def start_solve(
+        self,
+        *,
+        def_file: str,
+        partitions: int = 1,
+        parallel_mode: str = "local",
+        double_precision: bool = False,
+        initial_file: str | None = None,
+        additional_arguments: str = "",
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Start the CFX-Solver run from a .def input file.
 
         Parameters
         ----------
         def_file : str
             Path to the CFX solver input .def file.
+        partitions : int, default: 1
+            Number of parallel partitions/cores allocated to the run.
+        parallel_mode : str, default: 'local'
+            Parallel execution mode ('local', 'distributed', 'serial').
+        double_precision : bool, default: False
+            Whether to run the solver in double precision mode.
+        initial_file : str | None, default: None
+            Path to initial results file for continuation or restart.
+        additional_arguments : str, default: ''
+            Additional command-line arguments passed to cfx5solve.
         **kwargs : Any
             Additional solver launch parameters (product_version, cleanup_on_exit).
 
@@ -1168,7 +1262,12 @@ class CFXBackend(Backend):
         if solver is not None and solver.is_active:
             try:
                 solver.start_run()
-                return {"status": "ok", "message": "Solver run started.", "def_file": def_file}
+                return {
+                    "status": "ok",
+                    "message": "Solver run started.",
+                    "def_file": def_file,
+                    "partitions": partitions,
+                }
             except Exception as exc:
                 return {"status": "error", "message": str(exc)}
         # No active solver — launch one
@@ -1179,9 +1278,23 @@ class CFXBackend(Backend):
                 def_file,
                 product_version=product_version,
                 cleanup_on_exit=cleanup_on_exit,
+                partitions=partitions,
+                parallel_mode=parallel_mode,
+                double_precision=double_precision,
+                initial_file=initial_file,
+                additional_arguments=additional_arguments,
             )
             new_solver.start_run()
-            return {"status": "ok", "message": "Solver launched and started.", "def_file": def_file}
+            return {
+                "status": "ok",
+                "message": (
+                    f"Solver launched and started with {partitions} partitions "
+                    f"({parallel_mode}, double={double_precision})."
+                ),
+                "def_file": def_file,
+                "partitions": partitions,
+                "double_precision": double_precision,
+            }
         except Exception as exc:
             return {"status": "error", "message": str(exc)}
 
@@ -1276,6 +1389,424 @@ class CFXBackend(Backend):
             })
         return {"status": "ok", "categories": categories, "total": len(_CFX_API_CATALOG)}
 
+    async def get_convergence_status(self, max_history: int = 10) -> dict[str, Any]:
+        """Return the current CFX-Solver convergence residuals and imbalances.
+
+        Parameters
+        ----------
+        max_history : int, default: 10
+            Maximum number of iteration history records to return.
+
+        Returns
+        -------
+        dict[str, Any]
+            Structured convergence status containing current iteration, residuals,
+            domain imbalances, and recent history.
+        """
+        solver = SessionManager.get_solver()
+        if solver is not None and solver.is_active:
+            return solver.get_convergence_status(max_history=max_history)
+
+        def_path = SessionManager.get_solver_input_file()
+        if def_path:
+            p = Path(def_path)
+            stem = p.stem
+            candidates = list(p.parent.glob(f"{stem}*.out")) if p.parent.is_dir() else []
+            if candidates:
+                candidates.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+                from ansys.cfx.mcp.cfx.sessions.solver_session import parse_cfx_out_file
+
+                res = parse_cfx_out_file(candidates[0], max_history=max_history)
+                res["running"] = False
+                res["solver_input_file"] = def_path
+                return res
+
+        return {
+            "status": "error",
+            "error_code": "no_solver_session",
+            "message": "No active CFX-Solver session or output file available.",
+        }
+
+    async def execute_ccl(
+        self,
+        ccl: str,
+        *,
+        target: str = "auto",
+        session_type: str | None = None,
+    ) -> dict[str, Any]:
+        """Execute a raw CCL command string on an active CFX session.
+
+        Parameters
+        ----------
+        ccl : str
+            CCL text or command block to execute.
+        target : str, default: 'auto'
+            Session target: 'auto', 'pre', 'post', or 'solver'.
+        session_type : str | None, default: None
+            Alias for target: 'auto', 'pre', 'post', or 'solver'.
+
+        Returns
+        -------
+        dict[str, Any]
+            Structured execution response.
+        """
+        if not ccl or not ccl.strip():
+            return {
+                "status": "error",
+                "error_code": "empty_ccl",
+                "message": "ccl command must not be empty.",
+            }
+
+        target_effective = session_type or target or "auto"
+        target_norm = target_effective.strip().lower()
+        session_target = None
+        target_name = ""
+
+        if target_norm in ("auto", "pre"):
+            pre = SessionManager.get_pre()
+            if pre and pre.is_active:
+                session_target = pre
+                target_name = "pre"
+        if not session_target and target_norm in ("auto", "post"):
+            post = SessionManager.get_post()
+            if post and post.is_active:
+                session_target = post
+                target_name = "post"
+        if not session_target and target_norm in ("auto", "solver"):
+            solver = SessionManager.get_solver()
+            if solver and solver.is_active:
+                session_target = solver
+                target_name = "solver"
+
+        if not session_target:
+            return {
+                "status": "error",
+                "error_code": "no_active_session",
+                "message": (
+                    f"No active session found for target '{target_effective}'. "
+                    "Connect via connect_cfx before executing CCL."
+                ),
+            }
+
+        try:
+            session_target.execute_ccl(ccl)
+            lines_count = len([line for line in ccl.splitlines() if line.strip()])
+            return {
+                "status": "ok",
+                "target": target_name,
+                "lines_processed": lines_count,
+                "message": f"Successfully executed {lines_count} lines of CCL on {target_name}.",
+            }
+        except Exception as exc:
+            return {
+                "status": "error",
+                "target": target_name,
+                "error_code": "ccl_execution_error",
+                "message": f"CCL execution failed: {exc}",
+            }
+
+    async def manage_expressions(
+        self,
+        *,
+        action: str = "list",
+        name: str | None = None,
+        expression: str | None = None,
+        definition: str | None = None,
+        session_type: str | None = None,
+    ) -> dict[str, Any]:
+        """Manage CFX Expression Language (CEL) expressions in CFX-Pre or CFX-Post.
+
+        Parameters
+        ----------
+        action : str, default: 'list'
+            Action to perform: 'list', 'get', 'set', 'delete'.
+        name : str | None, default: None
+            Expression name.
+        expression : str | None, default: None
+            Expression formula string with bracketed units.
+        definition : str | None, default: None
+            Expression formula string (alias for expression).
+        session_type : str | None, default: None
+            Session to target: 'auto', 'pre', or 'post'.
+
+        Returns
+        -------
+        dict[str, Any]
+            Expression operation status.
+        """
+        expr_text = definition if definition is not None else expression
+        target_session = (session_type or "auto").strip().lower()
+        session_target = None
+
+        if target_session in ("auto", "pre"):
+            pre = SessionManager.get_pre()
+            if pre and pre.is_active:
+                session_target = pre
+        if not session_target and target_session in ("auto", "post"):
+            post = SessionManager.get_post()
+            if post and post.is_active:
+                session_target = post
+
+        action_norm = action.strip().lower()
+
+        if action_norm not in ("list", "get", "set", "delete"):
+            return {
+                "status": "error",
+                "error_code": "invalid_action",
+                "message": f"Unknown action '{action}'. Supported: 'list', 'get', 'set', 'delete'.",
+            }
+
+        if action_norm in ("get", "set", "delete") and not name:
+            return {
+                "status": "error",
+                "error_code": "missing_name",
+                "message": f"Action '{action_norm}' requires an expression 'name'.",
+            }
+
+        if action_norm == "set":
+            if not expr_text or not expr_text.strip():
+                return {
+                    "status": "error",
+                    "error_code": "missing_expression",
+                    "message": "Action 'set' requires a non-empty 'expression' or 'definition'.",
+                }
+
+        if not session_target or not session_target.is_active:
+            return {
+                "status": "error",
+                "error_code": "no_session",
+                "message": "Active CFX-Pre or CFX-Post session required to manage CEL expressions.",
+            }
+
+        if action_norm == "set":
+            ccl = f"LIBRARY:\n  CEL:\n    EXPRESSIONS:\n      {name} = {expr_text.strip()}\n    END\n  END\nEND\n"
+            try:
+                session_target.execute_ccl(ccl)
+                return {
+                    "status": "ok",
+                    "action": "set",
+                    "name": name,
+                    "expression": expr_text.strip(),
+                    "definition": expr_text.strip(),
+                    "message": f"Expression '{name}' successfully set.",
+                }
+            except Exception as exc:
+                return {"status": "error", "error_code": "cel_set_error", "message": str(exc)}
+
+        if action_norm == "delete":
+            ccl = f">delete /LIBRARY/CEL/EXPRESSIONS:{name}\n"
+            try:
+                session_target.execute_ccl(ccl)
+                return {
+                    "status": "ok",
+                    "action": "delete",
+                    "name": name,
+                    "message": f"Expression '{name}' deleted.",
+                }
+            except Exception as exc:
+                return {"status": "error", "error_code": "cel_delete_error", "message": str(exc)}
+
+        try:
+            state = getattr(session_target, "raw", None)
+            setup = getattr(state, "setup", None) if state else None
+            flow = getattr(setup, "flow", None) if setup else None
+            flow_state = flow.get_state() if flow and hasattr(flow, "get_state") else {}
+            exprs: dict[str, Any] = {}
+            if isinstance(flow_state, dict):
+                cel_node = flow_state.get("LIBRARY", {}).get("CEL", {}).get("EXPRESSIONS", {})
+                if isinstance(cel_node, dict):
+                    exprs = cel_node
+            if action_norm == "get":
+                val = exprs.get(name) if name else None
+                if val is not None:
+                    return {"status": "ok", "action": "get", "name": name, "expression": str(val), "definition": str(val)}
+                return {
+                    "status": "error",
+                    "error_code": "expression_not_found",
+                    "message": f"Expression '{name}' not found.",
+                }
+            return {"status": "ok", "action": "list", "expressions": exprs, "count": len(exprs)}
+        except Exception as exc:
+            return {"status": "error", "error_code": "cel_query_error", "message": str(exc)}
+
+    async def evaluate_post_expression(
+        self,
+        expression: str,
+        *,
+        location: str | None = None,
+        results_file: str | None = None,
+    ) -> dict[str, Any]:
+        """Evaluate a quantitative CFD-Post expression from the results file.
+
+        Parameters
+        ----------
+        expression : str
+            CFD-Post expression to calculate.
+        location : str | None, default: None
+            Location boundary/surface/plane.
+        results_file : str | None, default: None
+            Optional results file path.
+
+        Returns
+        -------
+        dict[str, Any]
+            Computed quantitative expression payload.
+        """
+        if not expression or not expression.strip():
+            return {
+                "status": "error",
+                "error_code": "empty_expression",
+                "message": "Expression string must not be empty.",
+            }
+
+        expr_clean = expression.strip()
+        if location and "@" not in expr_clean:
+            expr_clean = f"{expr_clean}@{location}"
+
+        post = SessionManager.get_post()
+        if not post or not post.is_active:
+            res_target = results_file or SessionManager.get_results_file()
+            if not res_target:
+                return {
+                    "status": "error",
+                    "error_code": "no_results_or_post_session",
+                    "message": "No active CFD-Post session or results file available to evaluate expression.",
+                }
+            try:
+                post = SessionManager.launch_post(res_target)
+            except Exception as exc:
+                return {
+                    "status": "error",
+                    "error_code": "launch_post_failed",
+                    "message": f"Could not launch CFD-Post for '{res_target}': {exc}",
+                }
+
+        try:
+            return post.evaluate_expression(expr_clean, location=location)
+        except Exception as exc:
+            return {
+                "status": "error",
+                "error_code": "evaluation_failed",
+                "message": f"Failed evaluating '{expr_clean}': {exc}",
+            }
+
+    async def inspect_mesh(self, mesh_file: str | None = None) -> dict[str, Any]:
+        """Audit mesh topology, element count, bounding box, and associated domains.
+
+        Parameters
+        ----------
+        mesh_file : str | None, default: None
+            Optional path to mesh file if not loaded in active session.
+
+        Returns
+        -------
+        dict[str, Any]
+            Mesh statistics and audit payload.
+        """
+        pre = SessionManager.get_pre()
+        if pre and pre.is_active:
+            try:
+                mesh_node = getattr(pre.raw.setup, "mesh", None)
+                mesh_state = mesh_node.get_state() if mesh_node and hasattr(mesh_node, "get_state") else {}
+                domains, boundaries = _collect_domains_and_boundaries(
+                    pre.raw.setup.flow.get_state() if hasattr(pre.raw.setup, "flow") else {}
+                )
+                return {
+                    "status": "ok",
+                    "source": "active_pre_session",
+                    "mesh_state": mesh_state,
+                    "domains": domains,
+                    "boundaries": boundaries,
+                    "elements_count": mesh_state.get("elements", None) if isinstance(mesh_state, dict) else None,
+                    "nodes_count": mesh_state.get("nodes", None) if isinstance(mesh_state, dict) else None,
+                }
+            except Exception as exc:
+                _LOG.debug("Error querying live mesh state: %s", exc)
+
+        if mesh_file:
+            p = Path(mesh_file)
+            if not p.is_file():
+                return {
+                    "status": "error",
+                    "error_code": "file_not_found",
+                    "message": f"Mesh file not found: {mesh_file}",
+                }
+            return {
+                "status": "ok",
+                "source": "file",
+                "file_name": p.name,
+                "file_size_bytes": p.stat().st_size,
+                "format": p.suffix.lower(),
+                "exists": True,
+            }
+
+        return {
+            "status": "error",
+            "error_code": "no_mesh_context",
+            "message": "No active CFX-Pre session with loaded mesh, and no mesh_file specified.",
+        }
+
+    async def screenshot(
+        self,
+        view: str | None = None,
+        *,
+        output_path: str | None = None,
+        figure_type: str = "view",
+        variable: str | None = None,
+        location: str | None = None,
+    ) -> dict[str, Any]:
+        """Capture a PNG screenshot of the current model view or plot in CFD-Post.
+
+        Parameters
+        ----------
+        view : str | None, default: None
+            Optional view name.
+        output_path : str | None, default: None
+            Optional destination image path.
+        figure_type : str, default: 'view'
+            Figure type: 'view', 'contour', 'vectors', 'streamlines'.
+        variable : str | None, default: None
+            Physical variable for contour/vector display.
+        location : str | None, default: None
+            Plane, surface, or boundary location.
+
+        Returns
+        -------
+        dict[str, Any]
+            PNG payload with base64-encoded image data and file path.
+        """
+        post = SessionManager.get_post()
+        target_path = output_path
+        if not target_path:
+            tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+            target_path = tmp.name
+            tmp.close()
+
+        if post and post.is_active:
+            try:
+                exported_file = post.export_figure(target_path, view=view)
+                p = Path(exported_file)
+                if p.is_file():
+                    data = base64.b64encode(p.read_bytes()).decode("ascii")
+                    return {
+                        "status": "ok",
+                        "format": "png",
+                        "data": data,
+                        "file_path": str(p),
+                    }
+            except Exception as exc:
+                return {
+                    "status": "error",
+                    "error_code": "screenshot_failed",
+                    "message": f"Failed capturing viewport: {exc}",
+                }
+
+        return {
+            "status": "error",
+            "error_code": "no_active_viewport",
+            "message": "No active CFD-Post session available to capture viewport.",
+        }
+
     async def cfx_workflow(
         self,
         *,
@@ -1356,6 +1887,25 @@ class CFXBackend(Backend):
                 connect_params.pop(key, None)
             connect = await self.connect(results_file=str(results_file), **connect_params)
             return {"status": connect.status, "action": action_name, "result": connect.model_dump()}
+        if action_name in {"convergence", "get_convergence_status"}:
+            return await self.get_convergence_status(**payload)
+        if action_name in {"evaluate_expression", "evaluate_post_expression"}:
+            expr = self._required_param(payload, "expression", aliases=("expr",))
+            loc = payload.get("location")
+            rf = payload.get("results_file")
+            return await self.evaluate_post_expression(str(expr), location=loc, results_file=rf)
+        if action_name in {"inspect_mesh", "mesh_metrics"}:
+            mf = payload.get("mesh_file") or payload.get("path")
+            return await self.inspect_mesh(mesh_file=mf)
+        if action_name in {"execute_ccl", "ccl"}:
+            ccl = self._required_param(payload, "ccl", aliases=("command", "code"))
+            target = payload.get("target", "auto")
+            return await self.execute_ccl(str(ccl), target=target)
+        if action_name in {"manage_expressions", "cel"}:
+            act = payload.get("action", "list")
+            name = payload.get("name")
+            expr = payload.get("expression")
+            return await self.manage_expressions(action=act, name=name, expression=expr)
         return {
             "status": "error",
             "action": action_name,
@@ -1369,6 +1919,11 @@ class CFXBackend(Backend):
                 "get_results_file",
                 "open_post",
                 "status",
+                "convergence",
+                "evaluate_expression",
+                "inspect_mesh",
+                "execute_ccl",
+                "manage_expressions",
             ],
         }
 

@@ -64,11 +64,16 @@
   "start_solve": [
    "run the cfx solver",
    "begin the simulation from a def file",
-   "submit the solve"
+   "submit the solve in parallel or double precision"
   ],
   "get_solve_status": [
    "is the solver still running",
    "solver run progress and results file"
+  ],
+  "get_convergence_status": [
+   "check solver iteration residuals",
+   "monitor cfx convergence and imbalances",
+   "read out file residual history"
   ],
   "stop_solve": [
    "halt the active solver run",
@@ -77,6 +82,31 @@
   "get_results": [
    "path to the res results file",
    "where the solver wrote its output"
+  ],
+  "evaluate_post_expression": [
+   "evaluate expression in cfx post",
+   "calculate mass flow or area average",
+   "compute force torque or pressure drop"
+  ],
+  "execute_ccl": [
+   "inject ccl command block",
+   "run raw cfx command language",
+   "modify cfx setup with multiline ccl"
+  ],
+  "manage_expressions": [
+   "manage cel expressions",
+   "create or evaluate expression formula",
+   "list cfx expressions and units"
+  ],
+  "inspect_mesh": [
+   "inspect mesh elements and topology",
+   "check mesh bounding box and domains",
+   "verify mesh node and element counts"
+  ],
+  "screenshot": [
+   "capture viewport screenshot or contour plot",
+   "export cfx image to base64 png",
+   "render visual scene in pre or post"
   ],
   "disconnect_cfx": [
    "close the cfx sessions",

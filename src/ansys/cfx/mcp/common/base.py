@@ -105,7 +105,13 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
         if transport == "stdio":
             parent_run(transport="stdio")
             return
-        parent_run(transport="http", host=host or "127.0.0.1", port=port or 8000)
+
+        import os
+
+        env_port = os.environ.get("MCP_PORT") or os.environ.get("PORT")
+        effective_port = port or (int(env_port) if env_port else 8000)
+        effective_host = host or os.environ.get("MCP_HOST", "127.0.0.1")
+        parent_run(transport="http", host=effective_host, port=effective_port)
 
     leaf_name: str = "fluids"
     default_backend_kind: Optional[str] = None
@@ -123,9 +129,9 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
     error_remediation_description: str = (
         "Generate a Markdown remediation / how-to answer for a "
         "natural-language request (error message, workflow question, "
-        "etc.). The backend calls the upstream chat endpoint and returns "
-        "the rendered Markdown text. Optional `context` is forwarded "
-        "verbatim to the backend."
+        "etc.). The backend inspects canonical PyAnsys recipes, patterns, "
+        "and troubleshooting guidance to return structured Markdown advice. "
+        "Optional `context` is forwarded to the backend."
     )
 
     def __init__(
@@ -1080,11 +1086,13 @@ class FluidsLeafMCP(PyAnsysBaseMCP):
             name="run_code",
             description=(
                 "Execute Python code against the active PyCFX session namespace. "
-                "The code runs with `pre`, `solver`, `post`, `session`, "
-                "`cfxpre`, `cfxsolver`, and `cfxpost` helpers refreshed from "
-                "the current CFX sessions. Returns stdout, stderr, and any "
-                "`__return__` value. Prefer `cfx_workflow` or "
-                "`cfx_model_context` for routed actions and read-only queries."
+                "The code runs in a sandboxed namespace with bound handles `pre`, "
+                "`solver`, `post`, `session`, `cfxpre`, `cfxsolver`, and `cfxpost`. "
+                "Only safe imports are permitted (e.g., `math`, `json`, `itertools`, "
+                "`functools`, `collections`, `dataclasses`, `typing`, `ansys.cfx.core`). "
+                "OS system calls, raw file open(), and subprocesses are restricted. "
+                "Returns stdout, stderr, and any `__return__` value. Prefer `cfx_workflow` "
+                "or `cfx_model_context` for routed actions and read-only queries."
             ),
         )
         @typed_guard

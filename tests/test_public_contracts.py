@@ -45,6 +45,12 @@ PUBLIC_TOOLS = (
     "get_results",
     "disconnect_cfx",
     "list_cfx_api_categories",
+    "evaluate_post_expression",
+    "get_convergence_status",
+    "execute_ccl",
+    "manage_expressions",
+    "inspect_mesh",
+    "screenshot",
 )
 
 
@@ -100,8 +106,22 @@ def test_public_mcp_surface_stays_compact_and_stable() -> None:
         "code-execution": ("run_code", "validate_code"),
         "error-handling": ("error_remediation",),
         "cfx-session": ("connect_cfx", "disconnect_cfx"),
-        "cfx-setup": ("get_setup", "set_setup", "save_case"),
-        "cfx-solve": ("start_solve", "get_solve_status", "stop_solve", "get_results"),
+        "cfx-setup": (
+            "get_setup",
+            "set_setup",
+            "save_case",
+            "execute_ccl",
+            "manage_expressions",
+            "inspect_mesh",
+        ),
+        "cfx-solve": (
+            "start_solve",
+            "get_solve_status",
+            "get_convergence_status",
+            "stop_solve",
+            "get_results",
+        ),
+        "cfx-post": ("evaluate_post_expression", "screenshot"),
     }
 
 

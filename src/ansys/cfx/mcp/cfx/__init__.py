@@ -55,7 +55,7 @@ class CFXMCP(FluidsLeafMCP):
     #: CFX-only names live here rather than in the shared base so other leaves
     #: do not inherit them.
     _TOOLSET_CATALOGUE = {
-        **FluidsLeafMCP._TOOLSET_CATALOGUE,
+        **{k: v for k, v in FluidsLeafMCP._TOOLSET_CATALOGUE.items() if k != "visualization"},
         "api-discovery": {
             **FluidsLeafMCP._TOOLSET_CATALOGUE["api-discovery"],
             "tools": [
@@ -81,19 +81,46 @@ class CFXMCP(FluidsLeafMCP):
                 "state and solver status. Use set_setup to change a value "
                 "at a CCL path, such as a domain turbulence model or a "
                 "boundary condition. Use save_case to persist the case "
-                "to a .cfx file."
+                "to a .cfx file. Use execute_ccl to inject raw CCL blocks "
+                "directly into CFX-Pre, Solver, or Post. Use manage_expressions "
+                "to list, get, set, or delete CEL expressions. Use inspect_mesh "
+                "to inspect mesh topology, element counts, bounding boxes, and domains."
             ),
-            "tools": ["get_setup", "set_setup", "save_case"],
+            "tools": [
+                "get_setup",
+                "set_setup",
+                "save_case",
+                "execute_ccl",
+                "manage_expressions",
+                "inspect_mesh",
+            ],
         },
         "cfx-solve": {
             "description": "Tools for running and monitoring the CFX solver.",
             "skill": (
-                "Use start_solve to launch CFX-Solver from a .def file, "
+                "Use start_solve to launch CFX-Solver from a .def file with "
+                "support for parallel execution, double precision, and restart files, "
                 "get_solve_status to poll whether it is still running, "
+                "get_convergence_status to monitor iteration residuals and domain imbalances, "
                 "stop_solve to abort a run, and get_results to obtain the "
                 ".res file once the run has finished."
             ),
-            "tools": ["start_solve", "get_solve_status", "stop_solve", "get_results"],
+            "tools": [
+                "start_solve",
+                "get_solve_status",
+                "get_convergence_status",
+                "stop_solve",
+                "get_results",
+            ],
+        },
+        "cfx-post": {
+            "description": "Tools for quantitative extraction and visualization in CFX / CFD-Post.",
+            "skill": (
+                "Use evaluate_post_expression to calculate quantitative engineering metrics "
+                "(massFlowAve, areaAve, force, torque, pressure drops) on boundary locators. "
+                "Use screenshot to capture high-resolution viewport images, contour plots, and vector fields."
+            ),
+            "tools": ["evaluate_post_expression", "screenshot"],
         },
     }
 
@@ -140,6 +167,12 @@ class CFXMCP(FluidsLeafMCP):
                 "get_results",
                 "disconnect_cfx",
                 "list_cfx_api_categories",
+                "evaluate_post_expression",
+                "get_convergence_status",
+                "execute_ccl",
+                "manage_expressions",
+                "inspect_mesh",
+                "screenshot",
             ),
             **fastmcp_kwargs,
         )
@@ -185,6 +218,16 @@ class CFXMCP(FluidsLeafMCP):
             self._tool_search_cfx_api()
         if "query_cfx_registry" in self._exposed:
             self._tool_query_cfx_registry()
+        if "evaluate_post_expression" in self._exposed:
+            self._tool_evaluate_post_expression()
+        if "get_convergence_status" in self._exposed:
+            self._tool_get_convergence_status()
+        if "execute_ccl" in self._exposed:
+            self._tool_execute_ccl()
+        if "manage_expressions" in self._exposed:
+            self._tool_manage_expressions()
+        if "inspect_mesh" in self._exposed:
+            self._tool_inspect_mesh()
 
     def _tool_cfx_workflow(self) -> None:
         """Register the ``cfx_workflow`` MCP tool for lifecycle actions.
@@ -198,10 +241,21 @@ class CFXMCP(FluidsLeafMCP):
         @self.tool(
             name="cfx_workflow",
             description=(
-                "Run one focused CFX lifecycle or artifact action. Actions: "
-                "start_pre, import_mesh, write_def, start_solver, wait_solver, "
-                "get_results_file, open_post, status. Use the external agent "
-                "layer for custom PyCFX code generation."
+                "Run one focused CFX lifecycle or artifact action. "
+                "Actions and parameter mapping:\n"
+                "- 'start_pre': params={'case_file_name': str, 'product_version': str, 'ui_mode': str}\n"
+                "- 'import_mesh': params={'path': str} (or 'mesh_file')\n"
+                "- 'write_def': params={'path': str} (or 'def_file')\n"
+                "- 'start_solver': params={'def_file': str, 'partitions': int, 'double_precision': bool, ...}\n"
+                "- 'wait_solver': params={'interval': int, 'timeout': int}\n"
+                "- 'get_results_file': params={}\n"
+                "- 'open_post': params={'results_file': str}\n"
+                "- 'status': params={}\n"
+                "- 'convergence': params={'max_history': int}\n"
+                "- 'evaluate_expression': params={'expression': str}\n"
+                "- 'inspect_mesh': params={}\n"
+                "- 'execute_ccl': params={'ccl': str, 'session_type': 'auto'|'pre'|'solver'|'post'}\n"
+                "- 'manage_expressions': params={'action': 'list'|'get'|'set'|'delete', 'name': str, 'definition': str}"
             ),
         )
         @typed_guard
@@ -215,6 +269,11 @@ class CFXMCP(FluidsLeafMCP):
                 "get_results_file",
                 "open_post",
                 "status",
+                "convergence",
+                "evaluate_expression",
+                "inspect_mesh",
+                "execute_ccl",
+                "manage_expressions",
             ],
             params: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
@@ -253,10 +312,17 @@ class CFXMCP(FluidsLeafMCP):
         @self.tool(
             name="cfx_model_context",
             description=(
-                "Return a targeted, compact CFX model context slice. Actions: "
-                "summary, list_named_objects, find_named_object, "
-                "select_named_objects, state, api_help, find_api, allowed_values, "
-                "targeted_context. Use max_items to keep responses small."
+                "Return a targeted, compact CFX model context slice. "
+                "Actions and parameter mapping:\n"
+                "- 'summary': overview of active setup\n"
+                "- 'list_named_objects': lists domains/boundaries\n"
+                "- 'find_named_object': params={'name': str}\n"
+                "- 'select_named_objects': params={'names': list[str]}\n"
+                "- 'state': params={'paths': list[str]}\n"
+                "- 'api_help': params={'path': str}\n"
+                "- 'find_api': params={'query': str, 'kinds': list[str], 'under': str}\n"
+                "- 'allowed_values': params={'paths': list[str]}\n"
+                "- 'targeted_context': params={'paths_to_check': list[str], 'named_object_types': list[str]}"
             ),
         )
         @typed_guard
@@ -318,9 +384,10 @@ class CFXMCP(FluidsLeafMCP):
         @self.tool(
             name="connect_cfx",
             description=(
-                "Connect to a CFX session. Supports auto, launch, or attach mode. "
-                "Pass ip/port/password/server_info_file for attach, or "
-                "case_file_name/product_version for launch."
+                "Connect to a CFX session. Mode precedence: 'auto' (default) attempts attach "
+                "if ANSYS_MCP_PORT/ANSYS_MCP_HOST or attach parameters (ip, port, server_info_file) "
+                "are set; otherwise launches a local session via from_install. Explicit 'launch' or "
+                "'attach' can be forced. Pass case_file_name/product_version for launch."
             ),
         )
         @typed_guard
@@ -407,7 +474,10 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="get_setup",
-            description="Return a summary of the current CFX setup including named objects, state, and solver status.",
+            description=(
+                "Return a summary of the current CFX setup including named objects, state, and "
+                "solver status. @precondition: Active CFX session connected via connect_cfx."
+            ),
         )
         @typed_guard
         async def get_setup() -> dict[str, Any]:
@@ -432,7 +502,12 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="set_setup",
-            description="Set a value on a CFX setup path (e.g. domain turbulence model, boundary condition).",
+            description=(
+                "Set a value on a CFX setup path (e.g. domain turbulence model, boundary condition). "
+                "Physical quantities with units must be specified as CCL strings with bracketed units "
+                "(e.g. '10 [m s^-1]', '101325 [Pa]', '25 [C]', '1.2 [kg m^-3]'). "
+                "@precondition: Active CFX-Pre session connected via connect_cfx."
+            ),
         )
         @typed_guard
         async def set_setup(
@@ -468,7 +543,10 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="save_case",
-            description="Save the current CFX-Pre case to a .cfx file.",
+            description=(
+                "Save the current CFX-Pre case to a .cfx file. "
+                "@precondition: Active CFX-Pre session with a loaded or configured case."
+            ),
         )
         @typed_guard
         async def save_case(path: str) -> dict[str, Any]:
@@ -499,11 +577,20 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="start_solve",
-            description="Start the CFX-Solver run from a .def input file.",
+            description=(
+                "Start the CFX-Solver run from a .def input file with support for parallel "
+                "execution partitions, double precision, and restart initial conditions. "
+                "@precondition: CFX solver input .def file generated or specified."
+            ),
         )
         @typed_guard
         async def start_solve(
             def_file: str,
+            partitions: int = 1,
+            parallel_mode: str = "local",
+            double_precision: bool = False,
+            initial_file: Optional[str] = None,
+            additional_arguments: str = "",
             product_version: Optional[str] = None,
             cleanup_on_exit: bool = True,
         ) -> dict[str, Any]:
@@ -513,6 +600,16 @@ class CFXMCP(FluidsLeafMCP):
             ----------
             def_file : str
                 Path to the CFX solver input .def file.
+            partitions : int, default: 1
+                Number of parallel solver partitions (processes/cores). Default 1 runs serially.
+            parallel_mode : str, default: 'local'
+                CFX parallel execution mode ('local', 'distributed', etc.).
+            double_precision : bool, default: False
+                Run solver in double precision mode (-double). Recommended for conjugate heat transfer or small pressure gradients.
+            initial_file : Optional[str], default: None
+                Path to a previous results (.res) or backup (.bak) file for continuation restart (-initial).
+            additional_arguments : str, default: ''
+                Additional custom command-line arguments to pass directly to cfx5solve.
             product_version : Optional[str], default: None
                 Ansys product version to use.
             cleanup_on_exit : bool, default: True
@@ -526,6 +623,11 @@ class CFXMCP(FluidsLeafMCP):
             backend = cast(CFXBackend, self.backend)
             return await backend.start_solve(
                 def_file=def_file,
+                partitions=partitions,
+                parallel_mode=parallel_mode,
+                double_precision=double_precision,
+                initial_file=initial_file,
+                additional_arguments=additional_arguments,
                 product_version=product_version,
                 cleanup_on_exit=cleanup_on_exit,
             )
@@ -567,7 +669,10 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="stop_solve",
-            description="Stop the active CFX-Solver run.",
+            description=(
+                "Stop the active CFX-Solver run. "
+                "@precondition: Active running CFX-Solver session."
+            ),
         )
         @typed_guard
         async def stop_solve(wait: bool = True) -> dict[str, Any]:
@@ -598,7 +703,10 @@ class CFXMCP(FluidsLeafMCP):
 
         @self.tool(
             name="get_results",
-            description="Return the .res results file path from the active solver session.",
+            description=(
+                "Return the .res results file path from the active solver session. "
+                "@precondition: Solved CFX case or loaded .res results file."
+            ),
         )
         @typed_guard
         async def get_results() -> dict[str, Any]:
@@ -767,6 +875,207 @@ class CFXMCP(FluidsLeafMCP):
                 Structured response payload for the requested operation.
             """
             return await self.backend.get_help(path=path)
+
+    def _tool_evaluate_post_expression(self) -> None:
+        """Register the ``evaluate_post_expression`` MCP tool.
+
+        Returns
+        -------
+        None
+            No value is returned. Side effects are applied to the relevant cache, session, or
+            server.
+        """
+
+        @self.tool(
+            name="evaluate_post_expression",
+            description=(
+                "Evaluate a quantitative CEL expression in CFX / CFD-Post on the loaded results. "
+                "Supports standard CFD-Post quantitative functions such as "
+                "'massFlowAve(Total Pressure)@inlet', 'areaAve(Pressure)@outlet', "
+                "'force_z()@blade', 'torque_z()@rotor', and custom arithmetic expressions. "
+                "@precondition: Active CFX-Post session with loaded .res or results file."
+            ),
+        )
+        @typed_guard
+        async def evaluate_post_expression(
+            expression: str,
+        ) -> dict[str, Any]:
+            """Evaluate a CEL expression in CFX-Post.
+
+            Parameters
+            ----------
+            expression : str
+                The CEL expression to evaluate (e.g. 'massFlowAve(Total Pressure)@inlet').
+
+            Returns
+            -------
+            dict[str, Any]
+                Structured response payload containing the evaluated numerical value, units, and status.
+            """
+            backend = cast(CFXBackend, self.backend)
+            return await backend.evaluate_post_expression(expression=expression)
+
+    def _tool_get_convergence_status(self) -> None:
+        """Register the ``get_convergence_status`` MCP tool.
+
+        Returns
+        -------
+        None
+            No value is returned. Side effects are applied to the relevant cache, session, or
+            server.
+        """
+
+        @self.tool(
+            name="get_convergence_status",
+            description=(
+                "Parse and return live CFX-Solver iteration progress, residual histories "
+                "(RMS and Max for Momentum, Continuity, Energy, Turbulence), and domain "
+                "conservation imbalances from the solver .out file. "
+                "@precondition: Active or completed CFX-Solver run with an output file."
+            ),
+        )
+        @typed_guard
+        async def get_convergence_status(
+            max_history: int = 10,
+        ) -> dict[str, Any]:
+            """Get live CFX-Solver convergence status and residual history.
+
+            Parameters
+            ----------
+            max_history : int, default: 10
+                Maximum number of recent outer loop iterations to return in the residual history.
+
+            Returns
+            -------
+            dict[str, Any]
+                Structured response payload with current iteration, residuals, imbalances, and convergence flag.
+            """
+            backend = cast(CFXBackend, self.backend)
+            return await backend.get_convergence_status(max_history=max_history)
+
+    def _tool_execute_ccl(self) -> None:
+        """Register the ``execute_ccl`` MCP tool.
+
+        Returns
+        -------
+        None
+            No value is returned. Side effects are applied to the relevant cache, session, or
+            server.
+        """
+
+        @self.tool(
+            name="execute_ccl",
+            description=(
+                "Inject and execute a raw multiline CCL (CFX Command Language) statement "
+                "or block directly into CFX-Pre, Solver, or Post. Allows power users to set "
+                "complex physical models, boundary definitions, materials, solver parameters, "
+                "or post-processing objects. "
+                "@precondition: Active CFX session (Pre, Solver, or Post)."
+            ),
+        )
+        @typed_guard
+        async def execute_ccl(
+            ccl: str,
+            session_type: Literal["auto", "pre", "solver", "post"] = "auto",
+        ) -> dict[str, Any]:
+            """Execute a raw CCL statement or block.
+
+            Parameters
+            ----------
+            ccl : str
+                The multiline CCL command block to execute.
+            session_type : Literal['auto', 'pre', 'solver', 'post'], default: 'auto'
+                Target session type for CCL execution. 'auto' selects in order: Pre -> Post -> Solver.
+
+            Returns
+            -------
+            dict[str, Any]
+                Structured response payload indicating success or execution error.
+            """
+            backend = cast(CFXBackend, self.backend)
+            return await backend.execute_ccl(ccl=ccl, session_type=session_type)
+
+    def _tool_manage_expressions(self) -> None:
+        """Register the ``manage_expressions`` MCP tool.
+
+        Returns
+        -------
+        None
+            No value is returned. Side effects are applied to the relevant cache, session, or
+            server.
+        """
+
+        @self.tool(
+            name="manage_expressions",
+            description=(
+                "Manage CFX Expression Language (CEL) expressions in CFX-Pre or Post. "
+                "Supports listing all defined expressions, getting a specific expression definition, "
+                "creating or updating an expression with syntax/unit validation, and deleting expressions. "
+                "@precondition: Active CFX-Pre or CFX-Post session."
+            ),
+        )
+        @typed_guard
+        async def manage_expressions(
+            action: Literal["list", "get", "set", "delete"] = "list",
+            name: Optional[str] = None,
+            definition: Optional[str] = None,
+            session_type: Literal["auto", "pre", "post"] = "auto",
+        ) -> dict[str, Any]:
+            """Manage CEL expressions.
+
+            Parameters
+            ----------
+            action : Literal['list', 'get', 'set', 'delete'], default: 'list'
+                Expression operation to perform.
+            name : Optional[str], default: None
+                Name of the CEL expression (required for 'get', 'set', 'delete').
+            definition : Optional[str], default: None
+                CEL expression formula/definition with units (e.g. '10.5 [m s^-1]' or 'Total Pressure * 2') (required for 'set').
+            session_type : Literal['auto', 'pre', 'post'], default: 'auto'
+                Session type to manage expressions in.
+
+            Returns
+            -------
+            dict[str, Any]
+                Structured response payload with expression list or operation result.
+            """
+            backend = cast(CFXBackend, self.backend)
+            return await backend.manage_expressions(
+                action=action,
+                name=name,
+                definition=definition,
+                session_type=session_type,
+            )
+
+    def _tool_inspect_mesh(self) -> None:
+        """Register the ``inspect_mesh`` MCP tool.
+
+        Returns
+        -------
+        None
+            No value is returned. Side effects are applied to the relevant cache, session, or
+            server.
+        """
+
+        @self.tool(
+            name="inspect_mesh",
+            description=(
+                "Inspect mesh topology, element counts (nodes, elements), bounding box dimensions, "
+                "mesh assembly status, and domain association in the active CFX-Pre case. "
+                "@precondition: Active CFX-Pre session with loaded mesh or case."
+            ),
+        )
+        @typed_guard
+        async def inspect_mesh() -> dict[str, Any]:
+            """Inspect mesh topology and metrics.
+
+            Returns
+            -------
+            dict[str, Any]
+                Structured response payload containing mesh metrics, node/element counts, and domain mapping.
+            """
+            backend = cast(CFXBackend, self.backend)
+            return await backend.inspect_mesh()
 
 
 __all__ = ["CFXMCP"]

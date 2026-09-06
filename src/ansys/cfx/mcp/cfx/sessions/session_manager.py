@@ -143,7 +143,12 @@ class SessionManager:
         *,
         product_version: str | None = None,
         cleanup_on_exit: bool = True,
-        **_: Any,
+        partitions: int = 1,
+        parallel_mode: str = "local",
+        double_precision: bool = False,
+        initial_file: str | None = None,
+        additional_arguments: str = "",
+        **kwargs: Any,
     ) -> SolverSession:
         """Launch and remember a CFX-Solver session from a solver input file.
 
@@ -155,8 +160,18 @@ class SessionManager:
             Optional Ansys product version to launch.
         cleanup_on_exit : bool, default: True
             Whether PyCFX should clean up the launched process on exit.
-        _ : Any
-            Optional connection value forwarded to PyCFX when provided.
+        partitions : int, default: 1
+            Number of parallel partitions to use.
+        parallel_mode : str, default: 'local'
+            Parallel mode ('local', 'distributed', 'serial').
+        double_precision : bool, default: False
+            Whether to use double precision.
+        initial_file : str | None, default: None
+            Initial results file for continuation or restart.
+        additional_arguments : str, default: ''
+            Extra arguments passed to cfx5solve.
+        **kwargs : Any
+            Additional keyword arguments.
 
         Returns
         -------
@@ -170,6 +185,12 @@ class SessionManager:
             solver_input_file,
             product_version=product_version,
             cleanup_on_exit=cleanup_on_exit,
+            partitions=partitions,
+            parallel_mode=parallel_mode,
+            double_precision=double_precision,
+            initial_file=initial_file,
+            additional_arguments=additional_arguments,
+            **kwargs,
         )
         return cls._solver
 
