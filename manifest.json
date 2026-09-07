@@ -1,0 +1,168 @@
+{
+  "id": "ansys-cfx-mcp",
+  "name": "Ansys CFX Connector",
+  "version": "0.1.0",
+  "manifest_schema_version": 1,
+  "package_format_version": 1,
+  "platform": {
+    "os": "any",
+    "arch": "x64"
+  },
+  "runtime": "python",
+  "entry": "run_server.py",
+  "min_app_version": "0.4.0",
+  "entitlement_tier": "pro",
+  "port_env_var": "MCP_PORT",
+  "token_env_var": "MCP_LICENSE_TOKEN",
+  "stdio": true,
+  "platform_requirements": {
+    "python": [
+      "Python >= 3.10",
+      "ansys-common-mcp (PyAnsysBaseMCP runtime)",
+      "PyCFX sessions (bundled)"
+    ],
+    "windows": [
+      "Ansys CFX installed (CFX-Pre, Solver, CFD-Post) for live sessions"
+    ],
+    "linux": [
+      "PyCFX backend only (no GUI-dependent operations)"
+    ]
+  },
+  "config": {
+    "env": [
+      {
+        "key": "ANSYS_MCP_HOST",
+        "label": "Ansys bridge host",
+        "kind": "host",
+        "secret": false,
+        "required": false,
+        "default": "127.0.0.1",
+        "description": "Host running Ansys bridge."
+      },
+      {
+        "key": "ANSYS_MCP_PORT",
+        "label": "Ansys bridge port",
+        "kind": "host",
+        "secret": false,
+        "required": false,
+        "default": "48152",
+        "description": "TCP port exposed by Ansys bridge."
+      }
+    ]
+  },
+  "tools": [
+    {
+      "name": "connect_cfx",
+      "description": "Launch or connect to CFX-Pre session",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "launch",
+              "connect"
+            ]
+          },
+          "case_file": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_setup",
+      "description": "Read full CFX settings tree",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "set_setup",
+      "description": "Modify any CFX setting",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "save_case",
+      "description": "Save .cfx case file",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "start_solve",
+      "description": "Launch CFX-Solver + start run",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "wait": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_solve_status",
+      "description": "Check solver run state",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "stop_solve",
+      "description": "Stop solver run",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_results",
+      "description": "Load CFD-Post results + query",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "disconnect_cfx",
+      "description": "Exit CFX session",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_version",
+      "description": "Query CFX engine version",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_cfx_api_categories",
+      "description": "Browse CCL hierarchy categories",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "search_cfx_api",
+      "description": "Search CCL parameters by keyword",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "query_cfx_registry",
+      "description": "Look up parameter path + type + description",
+      "inputSchema": {
+        "type": "object"
+      }
+    }
+  ]
+}

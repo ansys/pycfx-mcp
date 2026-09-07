@@ -32,6 +32,9 @@ PUBLIC_TOOLS = (
     "cfx_model_context",
     "run_code",
     "validate_code",
+    "find_api",
+    "get_help",
+    "error_remediation",
 )
 
 
@@ -83,7 +86,9 @@ def test_public_mcp_surface_stays_compact_and_stable() -> None:
         "code-validation": ("validate_code",),
         "cfx-workflow": ("cfx_workflow",),
         "cfx-model-context": ("cfx_model_context",),
+        "api-discovery": ("find_api", "get_help"),
         "code-execution": ("run_code", "validate_code"),
+        "error-handling": ("error_remediation",),
     }
 
 

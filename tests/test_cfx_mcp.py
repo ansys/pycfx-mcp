@@ -53,6 +53,9 @@ def test_cfx_mcp_exposes_compact_tool_surface() -> None:
         "cfx_model_context",
         "run_code",
         "validate_code",
+        "find_api",
+        "get_help",
+        "error_remediation",
     }
 
 
@@ -61,11 +64,9 @@ def test_cfx_mcp_hides_low_level_tools_by_default() -> None:
         "list_named_objects",
         "find_named_object",
         "select_named_objects",
-        "get_help",
         "get_targeted_context",
         "solver_status",
         "summarize_setup",
-        "find_api",
         "get_state",
     }
 
@@ -83,12 +84,12 @@ def test_cfx_mcp_toolsets_include_exposed_cfx_tools_only() -> None:
     assert tools_by_toolset["cfx-workflow"] == {"cfx_workflow"}
     assert tools_by_toolset["cfx-model-context"] == {"cfx_model_context"}
     assert tools_by_toolset["code-execution"] == {"run_code", "validate_code"}
+    assert tools_by_toolset["api-discovery"] == {"find_api", "get_help"}
+    assert tools_by_toolset["error-handling"] == {"error_remediation"}
     assert toolset_tools == set(leaf._exposed)
-    assert "api-discovery" not in tools_by_toolset
     assert "named-objects" not in tools_by_toolset
     assert "state-inspection" not in tools_by_toolset
     assert "visualization" not in tools_by_toolset
-    assert "error-handling" not in tools_by_toolset
     assert "component-lifecycle" not in tools_by_toolset
     assert "reports" not in tools_by_toolset
 
