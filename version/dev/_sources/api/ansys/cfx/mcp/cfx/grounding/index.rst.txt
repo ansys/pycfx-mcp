@@ -1,0 +1,146 @@
+
+
+
+
+
+
+The ``grounding.py`` module
+===========================
+
+.. py:module:: ansys.cfx.mcp.cfx.grounding
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: grounding
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.grounding.GroundingReport`
+            - Summary of changes made by the :func:`ground_code` function.
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ground_code`
+            - Ground generated CFX code by correcting schema-known path segments.
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~logger`
+            - 
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> GroundingReport</api/ansys/cfx/mcp/cfx/grounding/GroundingReport>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Schema grounding for CFX Python.
+
+This pass validates the attribute chains that appear in PyCFX snippets against
+:class:`~ansys.cfx.mcp.cfx.schema_cache.CFXSchemaCache` and snaps unknown
+attribute leaves to the nearest valid name.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: ground_code(code: str, cache: ansys.cfx.mcp.cfx.schema_cache.CFXSchemaCache | None = None) -> tuple[str, GroundingReport]
+
+   
+   Ground generated CFX code by correcting schema-known path segments.
+
+
+   :Parameters:
+
+       **code** : :class:`python:str`
+           Python source code submitted for validation, grounding, or execution.
+
+       **cache** : :obj:`CFXSchemaCache` | :data:`python:None`, default: :data:`python:None`
+           Schema, validation, or backend cache used by the helper.
+
+
+
+   :Returns:
+
+       :class:`python:tuple`\[:class:`python:str`, :obj:`GroundingReport`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:data:: logger
+
+
+

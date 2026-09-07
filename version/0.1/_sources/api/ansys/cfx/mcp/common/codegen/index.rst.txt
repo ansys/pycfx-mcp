@@ -1,0 +1,106 @@
+
+
+
+
+
+
+The ``codegen.py`` module
+=========================
+
+.. py:module:: ansys.cfx.mcp.common.codegen
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: codegen
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.codegen.CodegenPipeline`
+            - Default pipeline: delegate to the backend.
+
+
+
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~logger`
+            - 
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> CodegenPipeline</api/ansys/cfx/mcp/common/codegen/CodegenPipeline>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Extensible code-generation pipeline.
+
+In Phase 1, the pipeline forwards `(prompt, session_id)` to the backend
+`codegen` method, which usually calls the existing Fluids One
+`/api/chat/propose_code` endpoint.
+
+In Phase 3, the LLM orchestration loop moves into this module so the MCP
+server itself drives the generation by calling backend tools directly for
+named objects, state, and allowed values. Until then, this file gives every
+leaf a single, consistent place to evolve the pipeline.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:data:: logger
+
+
+

@@ -1,0 +1,350 @@
+
+
+
+
+
+
+:class:`ConversationStore`
+==========================
+
+
+.. py:class:: ansys.cfx.mcp.common.conversation.ConversationStore(*, ttl_seconds: float = 60 * 60, max_entries: int = 256)
+
+   
+   Thread-safe TTL-bounded conversation store.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: ConversationStore
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~create`
+            - Create and store a new code-generation conversation entry.
+          * - :py:attr:`~get`
+            - Return an existing conversation entry by session identifier.
+          * - :py:attr:`~get_or_create`
+            - Return an existing conversation entry or create a new one.
+          * - :py:attr:`~touch`
+            - Refresh the last-used time for a conversation entry.
+          * - :py:attr:`~append_history`
+            - Append one message to a conversation history.
+          * - :py:attr:`~set_pending_clarification`
+            - Record the clarification currently awaiting a user answer.
+          * - :py:attr:`~has_pending_clarification_id`
+            - Return whether a conversation is waiting for a specific clarification.
+          * - :py:attr:`~clarification_was_just_asked`
+            - Return whether a clarification was asked very recently.
+
+
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.conversation import ConversationStore
+
+
+
+Method detail
+-------------
+
+.. py:method:: create() -> ConversationEntry
+
+   
+   Create and store a new code-generation conversation entry.
+
+
+
+
+
+   :Returns:
+
+       :obj:`ConversationEntry`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get(session_id: str) -> Optional[ConversationEntry]
+
+   
+   Return an existing conversation entry by session identifier.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+
+
+   :Returns:
+
+       :obj:`Optional`\[:obj:`ConversationEntry`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_or_create(session_id: Optional[str]) -> ConversationEntry
+
+   
+   Return an existing conversation entry or create a new one.
+
+
+   :Parameters:
+
+       **session_id** : :obj:`Optional`\[:class:`python:str`]
+           Conversation identifier used to retrieve or continue context.
+
+
+
+   :Returns:
+
+       :obj:`ConversationEntry`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: touch(session_id: str) -> None
+
+   
+   Refresh the last-used time for a conversation entry.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: append_history(session_id: str, role: str, content: Any) -> None
+
+   
+   Append one message to a conversation history.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+       **role** : :class:`python:str`
+           Conversation message role, such as user or assistant.
+
+       **content** : :obj:`Any`
+           Conversation message content to store.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: set_pending_clarification(session_id: str, clarification: dict[str, Any] | None) -> None
+
+   
+   Record the clarification currently awaiting a user answer.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+       **clarification** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`
+           Clarification payload currently waiting for a user answer.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned; side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: has_pending_clarification_id(session_id: str, clarification_id: str) -> bool
+
+   
+   Return whether a conversation is waiting for a specific clarification.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+       **clarification_id** : :class:`python:str`
+           Identifier of the clarification being answered or checked.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: clarification_was_just_asked(session_id: str, question_text: str) -> bool
+
+   
+   Return whether a clarification was asked very recently.
+
+
+   :Parameters:
+
+       **session_id** : :class:`python:str`
+           Conversation identifier used to retrieve or continue context.
+
+       **question_text** : :class:`python:str`
+           Clarification question text shown to the user.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Boolean answer for the requested condition.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

@@ -1,0 +1,81 @@
+
+
+
+
+
+
+:class:`UpstreamError`
+======================
+
+
+.. py:exception:: ansys.cfx.mcp.common.errors.UpstreamError(message: str, *, details: dict[str, Any] | None = None)
+
+   Bases: :py:obj:`FluidsMCPError`
+
+
+   
+   Error raised when an upstream CFX or provider call fails.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: UpstreamError
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~error_code`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.errors import UpstreamError
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: error_code
+   :value: 'upstream_error'
+
+
+
+
+
+

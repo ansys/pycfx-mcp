@@ -1,0 +1,128 @@
+
+
+
+
+
+
+:class:`GroundingReport`
+========================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.grounding.GroundingReport
+
+   
+   Summary of changes made by the :func:`ground_code` function.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: GroundingReport
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~changed`
+            - Whether schema grounding changed the original code.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~replacements`
+            - 
+          * - :py:attr:`~unresolved`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.grounding import GroundingReport
+
+Property detail
+---------------
+
+.. py:property:: changed
+   :type: bool
+
+
+   
+   Whether schema grounding changed the original code.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the grounded code differs from the original code.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: replacements
+   :type:  list[tuple[str, str]]
+   :value: []
+
+
+.. py:attribute:: unresolved
+   :type:  list[str]
+   :value: []
+
+
+
+
+
+

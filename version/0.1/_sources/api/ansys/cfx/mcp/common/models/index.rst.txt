@@ -1,0 +1,146 @@
+
+
+
+
+
+
+The ``models.py`` module
+========================
+
+.. py:module:: ansys.cfx.mcp.common.models
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: models
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.CapabilityInfo`
+            - Static description of one tool/feature exposed by a leaf.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.SessionStatus`
+            - Result of `session_status` - safe to call before `connect`.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.ConnectionTarget`
+            - Minimal connection descriptor surfaced to the LLM/UI for selection.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.ConnectResult`
+            - Result returned by the connection tool.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.ClarificationOption`
+            - One selectable answer for a clarification question.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.Clarification`
+            - Question returned when code generation needs more information.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.CodegenResult`
+            - Result of a CFX codegen call.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.RunCodeResult`
+            - Result returned after validating or executing Python code.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.RemediationResult`
+            - Markdown response from a remediation/help endpoint (e.g. Prime meshing).
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models.TypedError`
+            - Generic error envelope used when a tool can't return its native shape.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> CapabilityInfo</api/ansys/cfx/mcp/common/models/CapabilityInfo>
+    <span class="nf nf-cod-symbol_class"></span> SessionStatus</api/ansys/cfx/mcp/common/models/SessionStatus>
+    <span class="nf nf-cod-symbol_class"></span> ConnectionTarget</api/ansys/cfx/mcp/common/models/ConnectionTarget>
+    <span class="nf nf-cod-symbol_class"></span> ConnectResult</api/ansys/cfx/mcp/common/models/ConnectResult>
+    <span class="nf nf-cod-symbol_class"></span> ClarificationOption</api/ansys/cfx/mcp/common/models/ClarificationOption>
+    <span class="nf nf-cod-symbol_class"></span> Clarification</api/ansys/cfx/mcp/common/models/Clarification>
+    <span class="nf nf-cod-symbol_class"></span> CodegenResult</api/ansys/cfx/mcp/common/models/CodegenResult>
+    <span class="nf nf-cod-symbol_class"></span> RunCodeResult</api/ansys/cfx/mcp/common/models/RunCodeResult>
+    <span class="nf nf-cod-symbol_class"></span> RemediationResult</api/ansys/cfx/mcp/common/models/RemediationResult>
+    <span class="nf nf-cod-symbol_class"></span> TypedError</api/ansys/cfx/mcp/common/models/TypedError>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Typed contracts shared by PyCFX-MCP.
+
+These are the response shapes that LLM clients see. Keeping them small,
+JSON-friendly, and stable is what makes orchestration reliable.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+

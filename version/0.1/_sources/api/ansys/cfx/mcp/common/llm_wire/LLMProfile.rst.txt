@@ -1,0 +1,109 @@
+
+
+
+
+
+
+:class:`LLMProfile`
+===================
+
+
+.. py:class:: ansys.cfx.mcp.common.llm_wire.LLMProfile
+
+   
+   Resolved provider and transport settings for an LLM call.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: LLMProfile
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~provider`
+            - 
+          * - :py:attr:`~model`
+            - 
+          * - :py:attr:`~route`
+            - 
+          * - :py:attr:`~endpoint`
+            - 
+          * - :py:attr:`~transport`
+            - 
+          * - :py:attr:`~retry`
+            - 
+          * - :py:attr:`~auth_style`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.llm_wire import LLMProfile
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: provider
+   :type:  str
+
+.. py:attribute:: model
+   :type:  str
+
+.. py:attribute:: route
+   :type:  str
+
+.. py:attribute:: endpoint
+   :type:  str | None
+
+.. py:attribute:: transport
+   :type:  str
+
+.. py:attribute:: retry
+   :type:  RetrySpec
+
+.. py:attribute:: auth_style
+   :type:  str
+   :value: 'bearer'
+
+
+
+
+
+

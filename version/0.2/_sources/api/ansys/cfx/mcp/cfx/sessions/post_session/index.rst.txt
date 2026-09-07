@@ -1,0 +1,80 @@
+
+
+
+
+
+
+The ``post_session.py`` module
+==============================
+
+.. py:module:: ansys.cfx.mcp.cfx.sessions.post_session
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: post_session
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.sessions.post_session.PostSession`
+            - Wrapper for a live PyCFX PostProcessing session.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> PostSession</api/ansys/cfx/mcp/cfx/sessions/post_session/PostSession>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+MCP-side session wrapper for a PyCFX PostProcessing (CFD-Post) session.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+
