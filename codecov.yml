@@ -10,4 +10,4 @@ coverage:
 
 codecov:
   notify:
-    wait_for_ci: true
+    wait_for_ci: yes
