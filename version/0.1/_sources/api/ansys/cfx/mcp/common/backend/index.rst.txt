@@ -1,0 +1,88 @@
+
+
+
+
+
+
+The ``backend.py`` module
+=========================
+
+.. py:module:: ansys.cfx.mcp.common.backend
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: backend
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.backend.Backend`
+            - Common interface for all backends.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> Backend</api/ansys/cfx/mcp/common/backend/Backend>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Backend abstraction.
+
+Every leaf has one or more backends. A backend is the thing that actually
+talks to a supported fluids product or service. Tools are LLM-facing. Backends are
+implementation-facing.
+
+A backend implements only the operations its product supports. Unsupported
+operations raise `BackendUnavailable` so the typed-error guard converts them
+to a clean error code instead of a 500 error code.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+
