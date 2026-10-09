@@ -684,6 +684,285 @@ def test_pre_session_launch_rejects_invalid_launcher() -> None:
         PreSession.launch(launcher="from_container", case_file_name="case.cfx")
 
 
+@pytest.mark.asyncio
+async def test_cfx_backend_connect_orchestrates_solver_and_post_sessions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reset_session_manager()
+    backend = CFXBackend()
+    calls: list[tuple[str, tuple[object, ...], dict[str, object]]] = []
+
+    monkeypatch.setattr(
+        SessionManager,
+        "launch_pre",
+        staticmethod(lambda **kwargs: calls.append(("launch_pre", (), kwargs))),
+    )
+    monkeypatch.setattr(
+        SessionManager,
+        "launch_solver",
+        staticmethod(lambda *args, **kwargs: calls.append(("launch_solver", args, kwargs))),
+    )
+    monkeypatch.setattr(
+        SessionManager,
+        "launch_post",
+        staticmethod(lambda *args, **kwargs: calls.append(("launch_post", args, kwargs))),
+    )
+    monkeypatch.setattr(
+        SessionManager,
+        "attach_post",
+        staticmethod(lambda **kwargs: calls.append(("attach_post", (), kwargs))),
+    )
+    monkeypatch.setattr(
+        SessionManager,
+        "close_all",
+        staticmethod(lambda: calls.append(("close_all", (), {}))),
+    )
+
+    connected = await backend.connect(
+        solver_input_file="case.def",
+        results_file="case.res",
+        product_version="261",
+        cleanup_on_exit=False,
+    )
+    attached_post = await backend.connect(post_sinfo="post.sinfo")
+
+    assert connected.status == "ok"
+    assert connected.endpoint == "local"
+    assert attached_post.status == "ok"
+    assert calls == [
+        (
+            "launch_solver",
+            ("case.def",),
+            {"product_version": "261", "cleanup_on_exit": False},
+        ),
+        (
+            "launch_post",
+            ("case.res",),
+            {"ui_mode": None, "product_version": "261", "cleanup_on_exit": False},
+        ),
+        ("attach_post", (), {"server_info_file": "post.sinfo"}),
+    ]
+
+    assert backend.is_connected() is True
+    await backend.disconnect()
+    assert backend.is_connected() is False
+    assert calls[-1] == ("close_all", (), {})
+
+
+@pytest.mark.asyncio
+async def test_cfx_backend_connect_reports_session_manager_failures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reset_session_manager()
+
+    def fail_launch_pre(**_kwargs: object) -> None:
+        raise RuntimeError("no launcher")
+
+    monkeypatch.setattr(SessionManager, "launch_pre", staticmethod(fail_launch_pre))
+
+    result = await CFXBackend().connect(case_file_name="broken.cfx")
+
+    assert result.status == "error"
+    assert result.error_code == "connect_failed"
+    assert result.message == "no launcher"
+
+
+def test_cfx_backend_status_includes_active_session_artifacts(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    backend = CFXBackend()
+    backend._connected = True
+    monkeypatch.setattr(
+        SessionManager,
+        "status",
+        staticmethod(
+            lambda: {
+                "pre": True,
+                "solver": True,
+                "post": True,
+                "solver_input_file": "case.def",
+                "results_file": "case.res",
+            }
+        ),
+    )
+
+    status = backend.status("cfx")
+
+    assert status.connected is True
+    assert status.notes == [
+        "Pre: active",
+        "Solver: active",
+        "Post: active",
+        "DEF: case.def",
+        "RES: case.res",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_cfx_backend_model_context_routes_all_actions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    backend = CFXBackend()
+
+    async def get_state(self: CFXBackend, paths: list[str]) -> dict[str, dict[str, str]]:
+        return {path: {"value": path} for path in paths}
+
+    async def list_named_objects(self: CFXBackend) -> dict[str, list[str]]:
+        return {"flow": ["Flow 1"], "boundary": ["inlet"]}
+
+    async def select_named_objects(self: CFXBackend, names: list[str]) -> list[str]:
+        return [name for name in names if name == "inlet"]
+
+    async def find_named_object(self: CFXBackend, name: str) -> list[dict[str, object]]:
+        return [{"collection_path": "boundary", "name": name, "exact": True}]
+
+    async def get_targeted_context(self: CFXBackend, **kwargs: object) -> dict[str, object]:
+        return {"requested": kwargs}
+
+    monkeypatch.setattr(
+        CFXBackend,
+        "get_state",
+        get_state,
+    )
+    monkeypatch.setattr(
+        CFXBackend,
+        "list_named_objects",
+        list_named_objects,
+    )
+    monkeypatch.setattr(
+        CFXBackend,
+        "select_named_objects",
+        select_named_objects,
+    )
+    monkeypatch.setattr(
+        CFXBackend,
+        "find_named_object",
+        find_named_object,
+    )
+    monkeypatch.setattr(
+        CFXBackend,
+        "get_targeted_context",
+        get_targeted_context,
+    )
+
+    assert (await backend.cfx_model_context(action="summary"))["named_objects"] == {
+        "flow": ["Flow 1"],
+        "boundary": ["inlet"],
+    }
+    find_result = await backend.cfx_model_context(
+        action="find_named_object", params={"query": "inlet"}
+    )
+    select_result = await backend.cfx_model_context(
+        action="select_named_objects", params={"names": "inlet"}
+    )
+    assert find_result["matches"][0]["name"] == "inlet"
+    assert select_result["selected"] == ["inlet"]
+    assert (await backend.cfx_model_context(action="state", params={"paths": "flow"}))["state"] == {
+        "flow": {"value": "flow"}
+    }
+    assert (await backend.cfx_model_context(action="find_api", params={"path": "solver"}))[
+        "matches"
+    ]
+    allowed_values_result = await backend.cfx_model_context(
+        action="allowed_values",
+        params={"path": "domain.fluid_models.heat_transfer_model.option"},
+    )
+    targeted_context_result = await backend.cfx_model_context(
+        action="targeted_context", params={"paths_to_check": "solver"}
+    )
+    assert allowed_values_result["allowed_values"]
+    assert targeted_context_result["context"]["requested"]["paths_to_check"] == ["solver"]
+    assert (await backend.cfx_model_context(action="unknown"))["status"] == "error"
+
+
+def test_session_manager_launch_attach_and_getters(monkeypatch: pytest.MonkeyPatch) -> None:
+    reset_session_manager()
+    calls: list[tuple[str, object]] = []
+    old = SimpleNamespace(is_active=True, exit=lambda: calls.append(("close", "old")))
+    pre = SimpleNamespace(is_active=True)
+    solver = SimpleNamespace(is_active=True)
+    post = SimpleNamespace(is_active=True)
+
+    monkeypatch.setattr(PreSession, "launch", classmethod(lambda cls, **kwargs: pre))
+    monkeypatch.setattr(PreSession, "attach", classmethod(lambda cls, **kwargs: pre))
+    monkeypatch.setattr(SolverSession, "launch", classmethod(lambda cls, *args, **kwargs: solver))
+    monkeypatch.setattr(PostSession, "launch", classmethod(lambda cls, *args, **kwargs: post))
+    monkeypatch.setattr(PostSession, "attach", classmethod(lambda cls, **kwargs: post))
+
+    SessionManager._pre = old
+    assert SessionManager.launch_pre(case_file_name="fresh.cfx") is pre
+    assert calls == [("close", "old")]
+    assert SessionManager.launch_pre() is pre
+    assert SessionManager.attach_pre(ip="127.0.0.1", port=12345) is pre
+    assert SessionManager.launch_solver("case.def") is solver
+    assert SessionManager.launch_post("case.res") is post
+    assert SessionManager.attach_post(server_info_file="post.sinfo") is post
+
+    SessionManager.set_results_file("updated.res")
+    status = SessionManager.status()
+
+    assert SessionManager.get_pre() is pre
+    assert SessionManager.get_solver() is solver
+    assert SessionManager.get_post() is post
+    assert SessionManager.get_solver_input_file() == "case.def"
+    assert SessionManager.get_results_file() == "updated.res"
+    assert status["cfx_pre"] is True
+    assert status["def_file"] == "case.def"
+    reset_session_manager()
+
+
+def test_post_and_solver_launch_wrap_pycfx_core(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[str, dict[str, object]]] = []
+    raw_post = SimpleNamespace(file=SimpleNamespace(load_results=lambda file_name: None))
+    raw_solver = SimpleNamespace(solution=SimpleNamespace(is_running=lambda: False))
+
+    core_module = ModuleType("ansys.cfx.core")
+    core_module.PostProcessing = SimpleNamespace(
+        from_install=lambda **kwargs: calls.append(("post", kwargs)) or raw_post
+    )
+    core_module.Solver = SimpleNamespace(
+        from_install=lambda **kwargs: calls.append(("solver", kwargs)) or raw_solver
+    )
+    core_module.connect_to_cfx = lambda **kwargs: calls.append(("connect", kwargs)) or raw_post
+    patch_pycfx_core(monkeypatch, core_module)
+
+    post = PostSession.launch(
+        "case.res",
+        ui_mode="gui",
+        product_version="261",
+        cleanup_on_exit=False,
+    )
+    attached = PostSession.attach(ip="127.0.0.1", port=12345, password="pw")
+    sinfo = PostSession.from_sinfo("post.sinfo")
+    solver = SolverSession.launch("case.def", product_version="261", cleanup_on_exit=False)
+
+    assert post.raw is raw_post
+    assert attached.mode == "attach"
+    assert sinfo.mode == "attach"
+    assert solver.raw is raw_solver
+    assert calls == [
+        (
+            "post",
+            {
+                "results_file_name": "case.res",
+                "cleanup_on_exit": False,
+                "ui_mode": "gui",
+                "product_version": "261",
+            },
+        ),
+        ("connect", {"ip": "127.0.0.1", "port": 12345, "password": "pw"}),
+        ("connect", {"server_info_file_name": "post.sinfo"}),
+        (
+            "solver",
+            {
+                "solver_input_file_name": "case.def",
+                "cleanup_on_exit": False,
+                "product_version": "261",
+            },
+        ),
+    ]
+
+
 @pytest.mark.parametrize("exception", [InvalidArguments("bad"), RuntimeError("boom")])
 @pytest.mark.asyncio
 async def test_typed_guard_converts_errors(exception: Exception) -> None:
