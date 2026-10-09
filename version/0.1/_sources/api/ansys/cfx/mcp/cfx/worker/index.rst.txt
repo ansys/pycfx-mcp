@@ -1,0 +1,122 @@
+
+
+
+
+
+
+The ``worker.py`` module
+========================
+
+.. py:module:: ansys.cfx.mcp.cfx.worker
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+.. py:currentmodule:: worker
+.. tab-set::
+
+
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~main`
+            - Execute the module entry point for PyCFX-MCP.
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~logger`
+            - 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+CFX worker process.
+
+This module is executed in a separate Python interpreter so PyCFX can be
+imported without colliding with protocol buffer descriptors from other
+loaded packages.
+
+Communication protocol: JSON lines over stdin/stdout.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: main() -> None
+
+   
+   Execute the module entry point for PyCFX-MCP.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:data:: logger
+
+
+

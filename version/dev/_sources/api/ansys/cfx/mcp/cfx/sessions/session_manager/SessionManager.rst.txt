@@ -1,0 +1,646 @@
+
+
+
+
+
+
+:class:`SessionManager`
+=======================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.sessions.session_manager.SessionManager
+
+   
+   Track active CFX sessions and artifacts for the backend namespace.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: SessionManager
+
+Overview
+--------
+
+.. tab-set::
+
+
+   .. tab-item:: Constructors
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~launch_pre`
+            - Launch and remember a new CFX-Pre session.
+          * - :py:attr:`~attach_pre`
+            - Attach to an existing CFX-Pre session and remember it.
+          * - :py:attr:`~launch_solver`
+            - Launch and remember a CFX-Solver session from a solver input file.
+          * - :py:attr:`~launch_post`
+            - Launch and remember a CFD-Post session for an optional results file.
+          * - :py:attr:`~attach_post`
+            - Attach to an existing CFD-Post session and remember it.
+          * - :py:attr:`~get_pre`
+            - Get the active CFX-Pre session wrapper, if one is available.
+          * - :py:attr:`~get_solver`
+            - Get the active CFX-Solver session wrapper, if one is available.
+          * - :py:attr:`~get_post`
+            - Get the active CFD-Post session wrapper, if one is available.
+          * - :py:attr:`~get_solver_input_file`
+            - Get the cached CFX solver input-file path.
+          * - :py:attr:`~get_results_file`
+            - Get the cached CFX solver results-file path.
+          * - :py:attr:`~set_results_file`
+            - Store the latest CFX solver results-file path.
+          * - :py:attr:`~status`
+            - Return a structured status summary for the active CFX backend or session manager.
+          * - :py:attr:`~disconnect`
+            - Disconnect this backend from its active CFX runtime or service.
+          * - :py:attr:`~cleanup`
+            - Close inactive remembered sessions and clear stale session references.
+          * - :py:attr:`~close_all`
+            - Close every remembered CFX session wrapper.
+
+
+
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.sessions.session_manager import SessionManager
+
+
+
+Method detail
+-------------
+
+.. py:method:: launch_pre(*, launcher: str = 'from_install', ui_mode: str | None = None, product_version: str | None = None, case_file_name: str | None = None, start_timeout: int = 60, additional_arguments: str = '', container_dict: dict[str, Any] | None = None, cleanup_on_exit: bool = True) -> ansys.cfx.mcp.cfx.sessions.pre_session.PreSession
+   :classmethod:
+
+
+   
+   Launch and remember a new CFX-Pre session.
+
+
+   :Parameters:
+
+       **launcher** : :class:`python:str`, default: ``'from_install'``
+           PyCFX launcher method to call.
+
+       **ui_mode** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional CFX UI mode for the launched process.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **case_file_name** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           CFX case file to open when launching CFX-Pre.
+
+       **start_timeout** : :class:`python:int`, default: 60
+           Maximum number of seconds to wait for a launched CFX process.
+
+       **additional_arguments** : :class:`python:str`, default: ``''``
+           Additional command-line arguments to pass to the CFX launcher.
+
+       **container_dict** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Container-launch configuration to pass to PyCFX.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether PyCFX should clean up the launched process on exit.
+
+
+
+   :Returns:
+
+       :obj:`PreSession` | :data:`python:None`
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: attach_pre(*, ip: str | None = None, port: int | None = None, password: str | None = None, server_info_file: str | None = None, **_: Any) -> ansys.cfx.mcp.cfx.sessions.pre_session.PreSession
+   :classmethod:
+
+
+   
+   Attach to an existing CFX-Pre session and remember it.
+
+
+   :Parameters:
+
+       **ip** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           IP address of the running CFX service to attach to.
+
+       **port** : :class:`python:int` | :data:`python:None`, default: :data:`python:None`
+           Port of the running CFX service to attach to.
+
+       **password** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Password for the running CFX service, when required.
+
+       **server_info_file** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           PyCFX server information file used for attachment.
+
+       **_** : :obj:`Any`
+           Optional connection value forwarded to PyCFX when provided.
+
+
+
+   :Returns:
+
+       :obj:`PreSession`
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: launch_solver(solver_input_file: str, *, product_version: str | None = None, cleanup_on_exit: bool = True, **_: Any) -> ansys.cfx.mcp.cfx.sessions.solver_session.SolverSession
+   :classmethod:
+
+
+   
+   Launch and remember a CFX-Solver session from a solver input file.
+
+
+   :Parameters:
+
+       **solver_input_file** : :class:`python:str`
+           CFX ``.def`` file used to start the solver session.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether PyCFX should clean up the launched process on exit.
+
+       **_** : :obj:`Any`
+           Optional connection value forwarded to PyCFX when provided.
+
+
+
+   :Returns:
+
+       :obj:`SolverSession`
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: launch_post(results_file: str, *, ui_mode: str | None = None, product_version: str | None = None, cleanup_on_exit: bool = True, **_: Any)
+   :classmethod:
+
+
+   
+   Launch and remember a CFD-Post session for an optional results file.
+
+
+   :Parameters:
+
+       **results_file** : :class:`python:str`
+           Cached or requested CFX results-file path.
+
+       **ui_mode** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional CFX UI mode for the launched process.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether PyCFX should clean up the launched process on exit.
+
+       **_** : :obj:`Any`
+           Optional connection value forwarded to PyCFX when provided.
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: attach_post(*, ip: str | None = None, port: int | None = None, password: str | None = None, server_info_file: str | None = None, **_: Any)
+   :classmethod:
+
+
+   
+   Attach to an existing CFD-Post session and remember it.
+
+
+   :Parameters:
+
+       **ip** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           IP address of the running CFX service to attach to.
+
+       **port** : :class:`python:int` | :data:`python:None`, default: :data:`python:None`
+           Port of the running CFX service to attach to.
+
+       **password** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Password for the running CFX service, when required.
+
+       **server_info_file** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           PyCFX server information file used for attachment.
+
+       **_** : :obj:`Any`
+           Optional connection value forwarded to PyCFX when provided.
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_pre()
+   :classmethod:
+
+
+   
+   Get the active CFX-Pre session wrapper, if one is available.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_solver()
+   :classmethod:
+
+
+   
+   Get the active CFX-Solver session wrapper, if one is available.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_post()
+   :classmethod:
+
+
+   
+   Get the active CFD-Post session wrapper, if one is available.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_solver_input_file() -> str | None
+   :classmethod:
+
+
+   
+   Get the cached CFX solver input-file path.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:str` | :data:`python:None`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_results_file() -> str | None
+   :classmethod:
+
+
+   
+   Get the cached CFX solver results-file path.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:str` | :data:`python:None`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: set_results_file(results_file: str | None) -> None
+   :classmethod:
+
+
+   
+   Store the latest CFX solver results-file path.
+
+
+   :Parameters:
+
+       **results_file** : :class:`python:str` | :data:`python:None`
+           Cached or requested CFX results-file path.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: status() -> dict[str, Any]
+   :classmethod:
+
+
+   
+   Return a structured status summary for the active CFX backend or session manager.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured status payload for the active backend or session manager.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: disconnect() -> None
+   :classmethod:
+
+
+   
+   Disconnect this backend from its active CFX runtime or service.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: cleanup() -> None
+   :classmethod:
+
+
+   
+   Close inactive remembered sessions and clear stale session references.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: close_all() -> None
+   :classmethod:
+
+
+   
+   Close every remembered CFX session wrapper.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

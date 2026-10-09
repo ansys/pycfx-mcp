@@ -1,0 +1,334 @@
+
+
+
+
+
+
+:class:`CFXSchemaCache`
+=======================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.schema_cache.CFXSchemaCache(config_files: Iterable[str] | None = None)
+
+   
+   In-memory index of the CFX API tree for code generation grounding.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+.. py:currentmodule:: CFXSchemaCache
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~get`
+            - Get schema metadata for a CFX API path.
+          * - :py:attr:`~exists`
+            - Return whether a normalized CFX path exists in the schema cache.
+          * - :py:attr:`~has_allowed_values`
+            - Return whether the schema declares an explicit value set for ``path``.
+          * - :py:attr:`~get_allowed_values`
+            - Get the schema-declared allowed values for ``path``.
+          * - :py:attr:`~get_command_arguments`
+            - Get the argument schema for a CFX ``Command``/``Query`` path.
+          * - :py:attr:`~children`
+            - Return child schema paths directly under a CFX parent path.
+          * - :py:attr:`~suggest`
+            - Suggest close schema paths for an unknown CFX path.
+
+
+
+
+
+   .. tab-item:: Special methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~__len__`
+            - Return the number of schema paths currently stored in the cache.
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.schema_cache import CFXSchemaCache
+
+
+
+Method detail
+-------------
+
+.. py:method:: __len__() -> int
+
+   
+   Return the number of schema paths currently stored in the cache.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:int`
+           Number of schema entries stored in the cache.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get(path: str) -> SchemaNode | None
+
+   
+   Get schema metadata for a CFX API path.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           Dotted CFX schema path to find. The path may be supplied in display
+           form or normalized PyCFX attribute form.
+
+
+
+   :Returns:
+
+       :obj:`SchemaNode` | :data:`python:None`
+           Schema metadata for the path when it exists in the cache. Otherwise,
+           ``None``.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: exists(path: str) -> bool
+
+   
+   Return whether a normalized CFX path exists in the schema cache.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           CFX API, object, schema, or file path to process.
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the cache contains the requested normalized CFX path.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: has_allowed_values(path: str) -> bool
+
+   
+   Return whether the schema declares an explicit value set for ``path``.
+
+   ``True`` when the bundled configuration files attach an
+   ``enum``-style allowed-value list to the path or to its
+   ``cfx_type`` (such as ``UIMode``). ``False`` for free-form
+   primitives (``integer``/``real``/``string``/``boolean``)
+   and for paths that the schema does not know.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_allowed_values(path: str) -> tuple[Any, Ellipsis] | None
+
+   
+   Get the schema-declared allowed values for ``path``.
+
+   Returns ``None`` when no enumeration is known. Callers should
+   prefer the live-state probe (``Backend.get_allowed_values``)
+   and use this as a fallback for offline/disconnected
+   workflows.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_command_arguments(path: str) -> tuple[CommandArgument, Ellipsis]
+
+   
+   Get the argument schema for a CFX ``Command``/``Query`` path.
+
+   Returns an empty tuple for non-command paths or for paths
+   not present in the cache.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: children(path: str) -> list[str]
+
+   
+   Return child schema paths directly under a CFX parent path.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           Parent CFX schema path whose immediate children should be listed.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:str`]
+           Sorted child paths recorded for the parent, or an empty list when the
+           parent is unknown or has no recorded children.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: suggest(path: str, *, limit: int = 3) -> list[str]
+
+   
+   Suggest close schema paths for an unknown CFX path.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           Unknown or partially typed CFX schema path to match against known
+           entries.
+
+       **limit** : :class:`python:int`, default: 3
+           Maximum number of suggested schema paths to return.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:str`]
+           Candidate schema paths ordered by closeness to the requested path.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

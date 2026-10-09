@@ -1,0 +1,80 @@
+
+
+
+
+
+
+The ``solver_session.py`` module
+================================
+
+.. py:module:: ansys.cfx.mcp.cfx.sessions.solver_session
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: solver_session
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.sessions.solver_session.SolverSession`
+            - Wrapper for a live PyCFX Solver session.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> SolverSession</api/ansys/cfx/mcp/cfx/sessions/solver_session/SolverSession>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+MCP-side session wrapper for a PyCFX Solver session.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+

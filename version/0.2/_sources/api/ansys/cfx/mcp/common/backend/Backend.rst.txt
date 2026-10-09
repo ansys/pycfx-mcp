@@ -1,0 +1,1318 @@
+
+
+
+
+
+
+:class:`Backend`
+================
+
+
+.. py:class:: ansys.cfx.mcp.common.backend.Backend
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   
+   Common interface for all backends.
+
+   Concrete subclasses override only the methods their product supports.
+   Default implementations raise a `BackendUnavailable` error.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
+.. py:currentmodule:: Backend
+
+Overview
+--------
+
+.. tab-set::
+
+   .. tab-item:: Abstract methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~connect`
+            - Connect this backend to a CFX runtime or service.
+          * - :py:attr:`~is_connected`
+            - Whether the backend is currently connected.
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~disconnect`
+            - Disconnect this backend from its active CFX runtime or service.
+          * - :py:attr:`~status`
+            - Return a structured status summary for the active CFX backend or session manager.
+          * - :py:attr:`~error_remediation`
+            - Return recovery guidance for a failed backend operation.
+          * - :py:attr:`~list_named_objects`
+            - List named objects available in the active context.
+          * - :py:attr:`~select_named_objects`
+            - Return the subset of requested named objects that are available.
+          * - :py:attr:`~get_help`
+            - Return help information for a backend-specific API path.
+          * - :py:attr:`~solver_status`
+            - Return solver status information for the backend.
+          * - :py:attr:`~get_named_object_names`
+            - Return named object names for the active CFX context.
+          * - :py:attr:`~find_named_object`
+            - Find named object matching the request.
+          * - :py:attr:`~get_state`
+            - Get the state for the active CFX context.
+          * - :py:attr:`~get_active_status`
+            - Get the active/inactive status for a CFX path or component.
+          * - :py:attr:`~get_allowed_values`
+            - Get allowed values for a CFX path from live state or schema metadata.
+          * - :py:attr:`~get_node_attrs`
+            - Get selected attributes for one or more backend nodes.
+          * - :py:attr:`~get_node_attrs_bulk`
+            - Get selected attributes for children under a parent backend node.
+          * - :py:attr:`~probe_path`
+            - Check whether a backend path can be resolved.
+          * - :py:attr:`~get_command_arguments`
+            - Get argument metadata for a command-like CFX path.
+          * - :py:attr:`~describe_named_object_template`
+            - Describe the fields used when creating a named CFX object.
+          * - :py:attr:`~list_fields`
+            - List fields available for a backend object or schema scope.
+          * - :py:attr:`~get_targeted_context`
+            - Return a compact context slice for the requested CFX paths or objects.
+          * - :py:attr:`~mesh_adjacency_probe`
+            - Return mesh adjacency information for candidate boundary locations.
+          * - :py:attr:`~find_api`
+            - Find the API matching the request.
+          * - :py:attr:`~run_code`
+            - Execute Python code against the active CFX backend namespace.
+          * - :py:attr:`~validate_code`
+            - Validate Python code without mutating the active backend.
+          * - :py:attr:`~mesh_counts`
+            - Return mesh entity counts reported by the backend.
+          * - :py:attr:`~mesh_quality`
+            - Return mesh quality metrics reported by the backend.
+          * - :py:attr:`~mesh_check`
+            - Run backend mesh checks and return their diagnostics.
+          * - :py:attr:`~activate_component`
+            - Activate a backend component for later operations.
+          * - :py:attr:`~deactivate_component`
+            - Deactivate a backend component that should no longer receive operations.
+          * - :py:attr:`~update_component`
+            - Update backend component state with new data.
+          * - :py:attr:`~refresh_component`
+            - Refresh backend component state from the active session.
+          * - :py:attr:`~screenshot`
+            - Capture a screenshot from the active backend, when supported.
+          * - :py:attr:`~invalidate_cache`
+            - Clear cached backend data that may no longer reflect the active CFX session.
+          * - :py:attr:`~invalidate_live_caches`
+            - Clear live CFX session caches after the model or session state changes.
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~kind`
+            - 
+          * - :py:attr:`~label`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.backend import Backend
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: kind
+   :type:  str
+   :value: 'unknown'
+
+
+.. py:attribute:: label
+   :type:  str
+   :value: 'Unknown backend'
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: connect(**kwargs: Any) -> ansys.cfx.mcp.common.models.ConnectResult
+   :abstractmethod:
+
+   :async:
+
+
+   
+   Connect this backend to a CFX runtime or service.
+
+
+   :Parameters:
+
+       **kwargs** : :obj:`Any`
+           Keyword arguments forwarded to the wrapped callable.
+
+
+
+   :Returns:
+
+       :obj:`ConnectResult`
+           Connection result describing the selected backend session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: disconnect() -> None
+   :async:
+
+
+   
+   Disconnect this backend from its active CFX runtime or service.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: is_connected() -> bool
+   :abstractmethod:
+
+
+   
+   Whether the backend is currently connected.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the backend currently has an active CFX connection.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: status(leaf: str) -> ansys.cfx.mcp.common.models.SessionStatus
+
+   
+   Return a structured status summary for the active CFX backend or session manager.
+
+
+   :Parameters:
+
+       **leaf** : :class:`python:str`
+           Leaf server or backend name associated with the status payload.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured status payload for the active backend or session manager.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: error_remediation(remediation_request: str, *, context: Optional[dict[str, Any]] = None) -> ansys.cfx.mcp.common.models.RemediationResult
+   :async:
+
+
+   
+   Return recovery guidance for a failed backend operation.
+
+
+   :Parameters:
+
+       **remediation_request** : :class:`python:str`
+           Error text, failing code, or diagnostic request to explain and remediate.
+
+       **context** : :obj:`Optional`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]], default: :data:`python:None`
+           Optional backend status, validation result, or MCP tool context.
+
+
+
+   :Returns:
+
+       :obj:`RemediationResult`
+           Structured remediation advice from the backend.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: list_named_objects() -> dict[str, Any]
+   :async:
+
+
+   
+   List named objects available in the active context.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: select_named_objects(names: list[str]) -> list[str]
+   :async:
+
+
+   
+   Return the subset of requested named objects that are available.
+
+
+   :Parameters:
+
+       **names** : :class:`python:list`\[:class:`python:str`]
+           Candidate named-object names.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:str`]
+           Matching named-object names.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_help(path: str) -> dict[str, Any]
+   :async:
+
+
+   
+   Return help information for a backend-specific API path.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           API path to describe.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured help payload.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: solver_status() -> dict[str, Any]
+   :async:
+
+
+   
+   Return solver status information for the backend.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured solver-status payload.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_named_object_names(collection_path: str) -> list[str]
+   :async:
+
+
+   
+   Return named object names for the active CFX context.
+
+
+   :Parameters:
+
+       **collection_path** : :class:`python:str`
+           Named-object collection path to read, such as a boundary or domain collection.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:str`]
+           Names in the requested collection, or an empty list when named objects are not
+           available.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: find_named_object(name: str) -> list[dict[str, Any]]
+   :async:
+
+
+   
+   Find named object matching the request.
+
+
+   :Parameters:
+
+       **name** : :class:`python:str`
+           Name of the object, resource, or field to process.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           List of structured records matching the request.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_state(paths: list[str] | None = None) -> dict[str, Any]
+   :async:
+
+
+   
+   Get the state for the active CFX context.
+
+
+   :Parameters:
+
+       **paths** : :class:`python:list`\[:class:`python:str`] | :data:`python:None`, default: :data:`python:None`
+           Backend paths to inspect.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_active_status(paths: list[str]) -> dict[str, bool]
+   :async:
+
+
+   
+   Get the active/inactive status for a CFX path or component.
+
+
+   :Parameters:
+
+       **paths** : :class:`python:list`\[:class:`python:str`]
+           Backend paths to inspect.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured active-status payload for the requested path or component.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_allowed_values(paths: list[str]) -> dict[str, list[Any]]
+   :async:
+
+
+   
+   Get allowed values for a CFX path from live state or schema metadata.
+
+
+   :Parameters:
+
+       **paths** : :class:`python:list`\[:class:`python:str`]
+           Backend paths to inspect.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:list`\[:obj:`Any`]]
+           Structured allowed-values payload for the requested path.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_node_attrs(paths: list[str], attrs: list[str]) -> dict[str, dict[str, Any]]
+   :async:
+
+
+   
+   Get selected attributes for one or more backend nodes.
+
+
+   :Parameters:
+
+       **paths** : :class:`python:list`\[:class:`python:str`]
+           Backend node paths whose attributes should be retrieved.
+
+       **attrs** : :class:`python:list`\[:class:`python:str`]
+           Attributes to retrieve from a backend node.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Mapping from each requested path to its available attribute values.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_node_attrs_bulk(parent_path: str, attrs: list[str]) -> dict[str, dict[str, Any]]
+   :async:
+
+
+   
+   Get selected attributes for children under a parent backend node.
+
+
+   :Parameters:
+
+       **parent_path** : :class:`python:str`
+           Parent CFX path that owns the requested child fields.
+
+       **attrs** : :class:`python:list`\[:class:`python:str`]
+           Attributes to retrieve from a backend node.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Mapping from child path to the requested attribute values.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: probe_path(paths: list[str]) -> dict[str, dict[str, Any]]
+   :async:
+
+
+   
+   Check whether a backend path can be resolved.
+
+
+   :Parameters:
+
+       **paths** : :class:`python:list`\[:class:`python:str`]
+           Backend paths to resolve against the live state or schema metadata.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           Resolution details for each requested path.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_command_arguments(path: str) -> dict[str, Any] | None
+   :async:
+
+
+   
+   Get argument metadata for a command-like CFX path.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           Command-like backend path whose arguments should be described.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`
+           Argument metadata when the backend can describe the command. Otherwise,
+           ``None`` is returned.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: describe_named_object_template(path: str) -> dict[str, Any] | None
+   :async:
+
+
+   
+   Describe the fields used when creating a named CFX object.
+
+
+   :Parameters:
+
+       **path** : :class:`python:str`
+           Named-object collection or type path to describe.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`
+           Template metadata for creating the object, or ``None`` when unavailable.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: list_fields(*, scope: str = 'any') -> dict[str, Any] | None
+   :async:
+
+
+   
+   List fields available for a backend object or schema scope.
+
+
+   :Parameters:
+
+       **scope** : :class:`python:str`, default:``'any'``
+           Scope used to filter available fields.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`
+           Requested CFX data or metadata for the active session.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_targeted_context(*, paths_to_check: list[str], named_object_types: list[str] | None = None, instance_state_fetch: list[str] | None = None) -> dict[str, Any]
+   :async:
+
+
+   
+   Return a compact context slice for the requested CFX paths or objects.
+
+
+   :Parameters:
+
+       **paths_to_check** : :class:`python:list`\[:class:`python:str`]
+           CFX paths to check against the live state or schema metadata.
+
+       **named_object_types** : :class:`python:list`\[:class:`python:str`] | :data:`python:None`, default: :data:`python:None`
+           Named-object categories to include in context output.
+
+       **instance_state_fetch** : :class:`python:list`\[:class:`python:str`] | :data:`python:None`, default: :data:`python:None`
+           Optional callback used to fetch the live instance state.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: mesh_adjacency_probe(cellzones: list[str], *, bc_filter: tuple[str, Ellipsis] | None = None) -> dict[str, list[str]]
+   :async:
+
+
+   
+   Return mesh adjacency information for candidate boundary locations.
+
+
+   :Parameters:
+
+       **cellzones** : :class:`python:list`\[:class:`python:str`]
+           Mesh cell zones used for adjacency probing.
+
+       **bc_filter** : :class:`python:tuple`\[:class:`python:str`, ...] | :data:`python:None`, default: :data:`python:None`
+           Optional boundary-condition filter for adjacency output.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:list`\[:class:`python:str`]]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: find_api(query: str, *, top_k: int = 10, kinds: list[str] | None = None, under: str | None = None) -> list[dict[str, Any]]
+   :async:
+
+
+   
+   Find the API matching the request.
+
+
+   :Parameters:
+
+       **query** : :class:`python:str`
+           Search query for ranking CFX API or object matches.
+
+       **top_k** : :class:`python:int`, default: 10
+           Maximum number of matches to return.
+
+       **kinds** : :class:`python:list`\[:class:`python:str`] | :data:`python:None`, default: :data:`python:None`
+           Optional result categories for narrowing the search.
+
+       **under** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional CFX path prefix for scoping the search.
+
+
+
+   :Returns:
+
+       :class:`python:list`\[:class:`python:dict`\[:class:`python:str`, :obj:`Any`]]
+           List of structured records matching the request.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: run_code(code: str, *, namespace: dict[str, Any] | None = None, filename: str = '<ansys-cfx-mcp>') -> ansys.cfx.mcp.common.models.RunCodeResult
+   :async:
+
+
+   
+   Execute Python code against the active CFX backend namespace.
+
+
+   :Parameters:
+
+       **code** : :class:`python:str`
+           Python source code submitted for validation, grounding, or execution.
+
+       **namespace** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Execution namespace containing safe builtins and active CFX objects.
+
+       **filename** : :class:`python:str`, default: ``"<ansys-cfx-mcp>"``
+           Synthetic filename used in compile diagnostics.
+
+
+
+   :Returns:
+
+       :obj:`RunCodeResult`
+           Execution or validation result returned to the MCP caller.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: validate_code(code: str) -> ansys.cfx.mcp.common.models.RunCodeResult
+   :async:
+
+
+   
+   Validate Python code without mutating the active backend.
+
+
+   :Parameters:
+
+       **code** : :class:`python:str`
+           Python source code submitted for validation, grounding, or execution.
+
+
+
+   :Returns:
+
+       :obj:`RunCodeResult`
+           Execution or validation result returned to the MCP caller.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: mesh_counts() -> dict[str, int | None]
+   :async:
+
+
+   
+   Return mesh entity counts reported by the backend.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:int` | :data:`python:None`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: mesh_quality() -> dict[str, float | None]
+   :async:
+
+
+   
+   Return mesh quality metrics reported by the backend.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :class:`python:float` | :data:`python:None`]
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: mesh_check() -> dict[str, Any]
+   :async:
+
+
+   
+   Run backend mesh checks and return their diagnostics.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: activate_component() -> dict[str, Any]
+   :async:
+
+
+   
+   Activate a backend component for later operations.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: deactivate_component() -> dict[str, Any]
+   :async:
+
+
+   
+   Deactivate a backend component that should no longer receive operations.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: update_component() -> dict[str, Any]
+   :async:
+
+
+   
+   Update backend component state with new data.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: refresh_component() -> dict[str, Any]
+   :async:
+
+
+   
+   Refresh backend component state from the active session.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: screenshot(*, view: Optional[str] = None) -> dict[str, Any]
+   :async:
+
+
+   
+   Capture a screenshot from the active backend, when supported.
+
+
+   :Parameters:
+
+       **view** : :obj:`Optional`\[:class:`python:str`], default: :data:`python:None`
+           Optional view name for the screenshot capture.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: invalidate_cache() -> None
+
+   
+   Clear cached backend data that may no longer reflect the active CFX session.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: invalidate_live_caches() -> None
+
+   
+   Clear live CFX session caches after the model or session state changes.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

@@ -1,0 +1,137 @@
+
+
+
+
+
+
+The ``common`` package
+==========================
+
+.. py:module:: ansys.cfx.mcp.common
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+.. py:currentmodule:: common
+.. tab-set::
+
+
+    .. tab-item:: Submodules
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.activity_logging`
+            - Helpers for compact, redaction-safe logging of tool calls and live session interactions.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.backend`
+            - Backend abstraction.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.base`
+            - Base MCP server for the CFX MCP leaf.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.domain_tools`
+            - Domain-tool registration framework.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.errors`
+            - Typed error helpers and typed-guard helpers.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.models`
+            - Typed contracts shared by PyCFX-MCP.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.session_logging`
+            - Per-session debug logging for CFX-MCP.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.text_match`
+            - Shared string-matching utilities for fuzzy/typo-tolerant lookup.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.timings`
+            - Lightweight in-process latency collector for the gateway.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common.validation`
+            - Static code validation shared across backends.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-fa-file"></span> activity_logging</api/ansys/cfx/mcp/common/activity_logging/index>
+    <span class="nf nf-fa-file"></span> backend</api/ansys/cfx/mcp/common/backend/index>
+    <span class="nf nf-fa-file"></span> base</api/ansys/cfx/mcp/common/base/index>
+    <span class="nf nf-fa-file"></span> domain_tools</api/ansys/cfx/mcp/common/domain_tools/index>
+    <span class="nf nf-fa-file"></span> errors</api/ansys/cfx/mcp/common/errors/index>
+    <span class="nf nf-fa-file"></span> models</api/ansys/cfx/mcp/common/models/index>
+    <span class="nf nf-fa-file"></span> session_logging</api/ansys/cfx/mcp/common/session_logging/index>
+    <span class="nf nf-fa-file"></span> text_match</api/ansys/cfx/mcp/common/text_match/index>
+    <span class="nf nf-fa-file"></span> timings</api/ansys/cfx/mcp/common/timings/index>
+    <span class="nf nf-fa-file"></span> validation</api/ansys/cfx/mcp/common/validation/index>
+
+
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+
+Common infrastructure for standalone Ansys CFX-MCP leaves.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
