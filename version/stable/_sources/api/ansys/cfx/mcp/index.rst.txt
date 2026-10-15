@@ -1,0 +1,180 @@
+
+
+
+
+
+
+The ``ansys.cfx.mcp`` library
+=============================
+
+.. py:module:: ansys.cfx.mcp
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: mcp
+.. tab-set::
+
+    .. tab-item:: Subpackages
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx`
+            - CFX leaf powered by PyCFX sessions.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.common`
+            - Common infrastructure for standalone Ansys CFX-MCP leaves.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.config`
+            - CFX engine API schema dumps consumed by the schema cache.
+
+
+
+    .. tab-item:: Submodules
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cli`
+            - Console entry point for standalone PyCFX-MCP.
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.CFXMCP`
+            - CFX MCP leaf server implementation.
+
+
+
+
+
+
+    .. tab-item:: Attributes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~__version__`
+            - PyCFX MCP version.
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-md-package"></span> cfx</api/ansys/cfx/mcp/cfx/index>
+    <span class="nf nf-md-package"></span> common</api/ansys/cfx/mcp/common/index>
+    <span class="nf nf-md-package"></span> config</api/ansys/cfx/mcp/config/index>
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-fa-file"></span> cli</api/ansys/cfx/mcp/cli/index>
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> CFXMCP</api/ansys/cfx/mcp/CFXMCP>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+
+Standalone PyCFX-MCP package.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:data:: __version__
+
+   
+   PyCFX MCP version.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+

@@ -1,0 +1,153 @@
+
+
+
+
+
+
+The ``dependencies.py`` module
+==============================
+
+.. py:module:: ansys.cfx.mcp.cfx.dependencies
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+.. py:currentmodule:: dependencies
+.. tab-set::
+
+
+
+
+
+
+
+    .. tab-item:: Functions
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~check_cfx_prerequisites`
+            - Check CFX-specific prerequisites for an intent, recipe, and connection state.
+
+
+          * - :py:obj:`~primary_clarification`
+            - Return the first clarification that should be shown to the user.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+Prerequisite checks for deterministic CFX code generation.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+Module detail
+-------------
+
+.. py:function:: check_cfx_prerequisites(*, intent: str | None = None, recipe_name: str | None = None, params: dict[str, Any] | None = None, context: dict[str, Any] | None = None, status: dict[str, Any] | None = None) -> dict[str, Any]
+
+   
+   Check CFX-specific prerequisites for an intent, recipe, and connection state.
+
+
+   :Parameters:
+
+       **intent** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           User request text used to infer the required CFX action.
+
+       **recipe_name** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Name of the matched CFX recipe, when one is available.
+
+       **params** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Action-specific parameter mapping.
+
+       **context** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Additional context supplied by the caller.
+
+       **status** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`, default: :data:`python:None`
+           Current connection status used to decide whether prerequisites are satisfied.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Structured response payload for the requested operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:function:: primary_clarification(check: dict[str, Any]) -> dict[str, Any] | None
+
+   
+   Return the first clarification that should be shown to the user.
+
+
+   :Parameters:
+
+       **check** : :class:`python:dict`\[:class:`python:str`, :obj:`Any`]
+           Prerequisite-check result to convert into a user-facing clarification.
+
+
+
+   :Returns:
+
+       :class:`python:dict`\[:class:`python:str`, :obj:`Any`] | :data:`python:None`
+           Value computed by the helper for the requested CFX workflow.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+

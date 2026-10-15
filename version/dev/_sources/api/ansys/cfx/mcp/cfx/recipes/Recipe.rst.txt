@@ -1,0 +1,168 @@
+
+
+
+
+
+
+:class:`Recipe`
+===============
+
+
+.. py:class:: ansys.cfx.mcp.cfx.recipes.Recipe
+
+   
+   A single canonical PyCFX pattern.
+
+
+   :Parameters:
+
+       **name** : :class:`python:str`
+           Short identifier such as ``"create_outlet"``.
+
+       **summary** : :class:`python:str`
+           One-line description to show to the model.
+
+       **keywords** : :class:`python:tuple`\[:class:`python:str`, ...]
+           Lower-case trigger tokens to match against the user prompt.
+
+       **minimal** : :class:`python:str`
+           Smallest correct snippet that satisfies the bare request. This is
+           what the model should emit unless the user explicitly asks for more.
+
+       **optional** : :class:`python:str`, default: ``""``
+           Extra lines the model may add *only* when the user explicitly requests
+           the corresponding setting (documented, never auto-applied).
+
+       **notes** : :class:`python:str`, default: ``""``
+           Free-form text describing the recipe, its idioms, and any gotchas. This
+           is guidance the model must respect.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: Recipe
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~render`
+            - Render this CFX recipe as a prompt-ready canonical code example.
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~name`
+            - 
+          * - :py:attr:`~summary`
+            - 
+          * - :py:attr:`~keywords`
+            - 
+          * - :py:attr:`~minimal`
+            - 
+          * - :py:attr:`~optional`
+            - 
+          * - :py:attr:`~notes`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.recipes import Recipe
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: name
+   :type:  str
+
+.. py:attribute:: summary
+   :type:  str
+
+.. py:attribute:: keywords
+   :type:  tuple[str, ...]
+
+.. py:attribute:: minimal
+   :type:  str
+
+.. py:attribute:: optional
+   :type:  str
+   :value: ''
+
+
+.. py:attribute:: notes
+   :type:  str
+   :value: ''
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: render() -> str
+
+   
+   Render this CFX recipe as a prompt-ready canonical code example.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:str`
+           String value produced for the requested CFX or provider operation.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+

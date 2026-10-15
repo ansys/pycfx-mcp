@@ -1,0 +1,403 @@
+
+
+
+
+
+
+:class:`SolverSession`
+======================
+
+
+.. py:class:: ansys.cfx.mcp.cfx.sessions.solver_session.SolverSession(session: Any, *, mode: str = 'launch')
+
+   
+   Wrapper for a live PyCFX Solver session.
+
+   Consumes a DEF file from CFX-Pre and produces an RES results file
+   for CFD-Post.
+
+   .. note::
+       The CFX Solver does not support IP address/port/password attachment.
+       It can only be launched from a DEF file with ``from_install()``.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+.. py:currentmodule:: SolverSession
+
+Overview
+--------
+
+.. tab-set::
+
+
+   .. tab-item:: Constructors
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~launch`
+            - Launch the CFX-Solver from a solver input file and wrap the session.
+
+
+   .. tab-item:: Methods
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~start_run`
+            - Start the solver run for the wrapped CFX-Solver session.
+          * - :py:attr:`~stop_run`
+            - Stop the active CFX-Solver run.
+          * - :py:attr:`~wait_for_run`
+            - Wait for the active CFX-Solver run to finish.
+          * - :py:attr:`~get_results_file_name`
+            - Return the results file produced by the wrapped solver session.
+          * - :py:attr:`~is_running`
+            - Check whether the wrapped CFX-Solver run is still running.
+          * - :py:attr:`~exit`
+            - Exit the wrapped CFX session and release its resources.
+
+
+   .. tab-item:: Properties
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~raw`
+            - Underlying PyCFX CFX-Solver session object.
+          * - :py:attr:`~is_active`
+            - Check whether the wrapped CFX session still appears active.
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~mode`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.cfx.sessions.solver_session import SolverSession
+
+Property detail
+---------------
+
+.. py:property:: raw
+   :type: Any
+
+
+   
+   Underlying PyCFX CFX-Solver session object.
+
+
+
+
+
+   :Returns:
+
+       :obj:`Any`
+           Raw PyCFX solver session used by generated code and backend helpers.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:property:: is_active
+   :type: bool
+
+
+   
+   Check whether the wrapped CFX session still appears active.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the wrapped session appears to still be usable.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: mode
+   :value: 'launch'
+
+
+
+
+Method detail
+-------------
+
+.. py:method:: launch(solver_input_file: str, *, product_version: str | None = None, cleanup_on_exit: bool = True) -> SolverSession
+   :classmethod:
+
+
+   
+   Launch the CFX-Solver from a solver input file and wrap the session.
+
+
+   :Parameters:
+
+       **solver_input_file** : :class:`python:str`
+           CFX DEF file for starting the solver session.
+
+       **product_version** : :class:`python:str` | :data:`python:None`, default: :data:`python:None`
+           Optional Ansys product version to launch.
+
+       **cleanup_on_exit** : :ref:`bool <python:bltin-boolean-values>`, default: ``True``
+           Whether PyCFX should clean up the launched process on exit.
+
+
+
+   :Returns:
+
+       'SolverSession'
+           Session wrapper connected to the requested CFX process.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: start_run() -> None
+
+   
+   Start the solver run for the wrapped CFX-Solver session.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The solver session begins running asynchronously.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: stop_run(wait: bool = True) -> None
+
+   
+   Stop the active CFX-Solver run.
+
+
+   :Parameters:
+
+       **wait** : :ref:`bool <python:bltin-boolean-values>`, default: :data:`python:True`
+           Whether to wait until the solver acknowledges the stop request.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The solver run is requested to stop.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: wait_for_run(interval: int = 10, timeout: int = 86400) -> None
+
+   
+   Wait for the active CFX-Solver run to finish.
+
+
+   :Parameters:
+
+       **interval** : :class:`python:int`, default: 10
+           Polling interval in seconds while waiting for completion.
+
+       **timeout** : :class:`python:int`, default: 86400
+           Maximum number of seconds to wait for the solver.
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. The call blocks until completion or timeout.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: get_results_file_name() -> str | None
+
+   
+   Return the results file produced by the wrapped solver session.
+
+
+
+
+
+   :Returns:
+
+       :class:`python:str` | :data:`python:None`
+           Results-file path reported by PyCFX, or ``None`` if no result is available yet.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: is_running() -> bool
+
+   
+   Check whether the wrapped CFX-Solver run is still running.
+
+
+
+
+
+   :Returns:
+
+       :ref:`bool <python:bltin-boolean-values>`
+           Whether the wrapped solver run is still active.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+.. py:method:: exit() -> None
+
+   
+   Exit the wrapped CFX session and release its resources.
+
+
+
+
+
+   :Returns:
+
+       :data:`python:None`
+           No value is returned. Side effects are applied to the relevant cache, session, or
+           server.
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+
