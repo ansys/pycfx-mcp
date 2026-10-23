@@ -1,0 +1,139 @@
+
+
+
+
+
+
+The ``cfx`` package
+=======================
+
+.. py:module:: ansys.cfx.mcp.cfx
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: cfx
+.. tab-set::
+
+
+    .. tab-item:: Submodules
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.backend`
+            - CFX backend that bridges PyCFX sessions into the MCP backend interface.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.dependencies`
+            - Prerequisite checks for deterministic CFX code generation.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.grounding`
+            - Schema grounding for CFX Python.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.recipes`
+            - Canonical PyCFX code recipes.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.schema_cache`
+            - Schema cache built from the CFX engine ``*_info.json`` file dumps.
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.worker`
+            - CFX worker process.
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.CFXMCP`
+            - CFX MCP leaf server implementation.
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-fa-file"></span> backend</api/ansys/cfx/mcp/cfx/backend/index>
+    <span class="nf nf-fa-file"></span> dependencies</api/ansys/cfx/mcp/cfx/dependencies/index>
+    <span class="nf nf-fa-file"></span> grounding</api/ansys/cfx/mcp/cfx/grounding/index>
+    <span class="nf nf-fa-file"></span> recipes</api/ansys/cfx/mcp/cfx/recipes/index>
+    <span class="nf nf-fa-file"></span> schema_cache</api/ansys/cfx/mcp/cfx/schema_cache/index>
+    <span class="nf nf-fa-file"></span> worker</api/ansys/cfx/mcp/cfx/worker/index>
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> CFXMCP</api/ansys/cfx/mcp/cfx/CFXMCP>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+
+CFX leaf powered by PyCFX sessions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+

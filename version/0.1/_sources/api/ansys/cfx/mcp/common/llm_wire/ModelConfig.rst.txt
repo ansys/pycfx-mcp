@@ -1,0 +1,94 @@
+
+
+
+
+
+
+:class:`ModelConfig`
+====================
+
+
+.. py:class:: ansys.cfx.mcp.common.llm_wire.ModelConfig
+
+   
+   Resolved chat endpoint configuration.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+.. py:currentmodule:: ModelConfig
+
+Overview
+--------
+
+.. tab-set::
+
+
+
+
+
+   .. tab-item:: Attributes
+
+      .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+          * - :py:attr:`~endpoint`
+            - 
+          * - :py:attr:`~api_key`
+            - 
+          * - :py:attr:`~model`
+            - 
+          * - :py:attr:`~auth_style`
+            - 
+
+
+
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.llm_wire import ModelConfig
+
+
+Attribute detail
+----------------
+
+.. py:attribute:: endpoint
+   :type:  str | None
+
+.. py:attribute:: api_key
+   :type:  str | None
+
+.. py:attribute:: model
+   :type:  str
+
+.. py:attribute:: auth_style
+   :type:  str
+   :value: 'bearer'
+
+
+
+
+
+
