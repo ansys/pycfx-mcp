@@ -1,0 +1,49 @@
+
+
+
+
+
+
+:class:`LLMTransportError`
+==========================
+
+
+.. py:exception:: ansys.cfx.mcp.common.llm_wire.LLMTransportError
+
+   Bases: :py:obj:`RuntimeError`
+
+
+   
+   Raised when an LLM transport call fails.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ..
+       !! processed by numpydoc !!
+
+
+
+Import detail
+-------------
+
+.. code-block:: python
+
+    from ansys.cfx.mcp.common.llm_wire import LLMTransportError
+
+
+
+
+

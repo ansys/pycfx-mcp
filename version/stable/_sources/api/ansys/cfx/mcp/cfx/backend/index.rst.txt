@@ -1,0 +1,80 @@
+
+
+
+
+
+
+The ``backend.py`` module
+=========================
+
+.. py:module:: ansys.cfx.mcp.cfx.backend
+
+
+Summary
+-------
+
+
+
+
+
+
+
+
+
+
+.. py:currentmodule:: backend
+.. tab-set::
+
+
+
+
+    .. tab-item:: Classes
+
+        .. list-table::
+          :header-rows: 0
+          :widths: auto
+
+
+          * - :py:obj:`~ansys.cfx.mcp.cfx.backend.CFXBackend`
+            - Backend that manages CFX Pre, CFX-Solver, and CFD-Post sessions via PyCFX.
+
+
+
+
+
+
+
+
+
+
+
+
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+   :hidden:
+
+    <span class="nf nf-cod-symbol_class"></span> CFXBackend</api/ansys/cfx/mcp/cfx/backend/CFXBackend>
+
+
+
+
+
+
+
+
+
+Description
+-----------
+
+CFX backend that bridges PyCFX sessions into the MCP backend interface.
+
+..
+    !! processed by numpydoc !!
+
+
+
+
+
+
+
